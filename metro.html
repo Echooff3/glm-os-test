@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 8 Metro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            overflow-x: auto;
+            color: white;
+        }
+
+        .desktop {
+            padding: 40px;
+            min-width: 1200px;
+        }
+
+        .user-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .start-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .start-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .start-button svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .metro-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 150px);
+            grid-template-rows: repeat(auto-fill, 150px);
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .tile {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .tile:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+
+        .tile:active {
+            transform: scale(0.95);
+        }
+
+        .tile.hidden {
+            display: none;
+        }
+
+        .tile-small {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
+        .tile-wide {
+            grid-column: span 2;
+            grid-row: span 1;
+        }
+
+        .tile-large {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+
+        .tile-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .tile-label {
+            font-size: 14px;
+            font-weight: 500;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Tile Colors */
+        .tile-blue { background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%); }
+        .tile-green { background: linear-gradient(135deg, #107c10 0%, #0b5a0b 100%); }
+        .tile-orange { background: linear-gradient(135deg, #d83b01 0%, #a80000 100%); }
+        .tile-purple { background: linear-gradient(135deg, #5c2d91 0%, #3a1a5e 100%); }
+        .tile-pink { background: linear-gradient(135deg, #e81123 0%, #b00b14 100%); }
+        .tile-teal { background: linear-gradient(135deg, #00b7c3 0%, #008a93 100%); }
+        .tile-yellow { background: linear-gradient(135deg, #ffb900 0%, #d69e00 100%); }
+        .tile-dark { background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%); }
+        .tile-sky { background: linear-gradient(135deg, #00bcf2 0%, #0091bd 100%); }
+        .tile-lime { background: linear-gradient(135deg, #a4c400 0%, #7a9100 100%); }
+        .tile-magenta { background: linear-gradient(135deg, #e3008c 0%, #b0006c 100%); }
+        .tile-indigo { background: linear-gradient(135deg, #6b69d6 0%, #4a48a3 100%); }
+
+        /* Live Tile Animation */
+        .live-tile {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .live-tile .tile-content {
+            animation: relative;
+            z-index: 1;
+        }
+
+        .live-tile .tile-content-alt {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            z-index: 2;
+            opacity: 0;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .live-tile:hover .tile-content {
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.5s ease-in-out;
+        }
+
+        .live-tile:hover .tile-content-alt {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Weather Tile Special */
+        .weather-tile {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+
+        .weather-temp {
+            font-size: 48px;
+            font-weight: 300;
+        }
+
+        .weather-condition {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Mail Tile Special */
+        .mail-tile .mail-count {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e81123;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Store Tile Special */
+        .store-tile {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+        }
+
+        .store-logo {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        /* Group Labels */
+        .group-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 20px 0 10px 0;
+            padding-left: 5px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            width: 300px;
+            outline: none;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            fill: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Charm Bar */
+        .charm-bar {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 100;
+        }
+
+        .charm {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .charm:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .charm svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        /* Calendar Tile */
+        .calendar-tile {
+            background: white;
+            color: #333;
+        }
+
+        .calendar-date {
+            font-size: 48px;
+            font-weight: 300;
+            color: #0078d4;
+        }
+
+        .calendar-day {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .calendar-month {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #999;
+        }
+
+        /* Music Tile */
+        .music-tile {
+            background: linear-gradient(135deg, #1db954 0%, #169c46 100%);
+        }
+
+        .music-icon {
+            font-size: 48px;
+        }
+
+        /* Photos Tile */
+        .photos-tile {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            position: relative;
+        }
+
+        .photos-tile::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 40px;
+            background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%),
+                        linear-gradient(-45deg, rgba(255,255,255,0.2) 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.2) 75%),
+                        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.2) 75%);
+            background-size: 20px 20px;
+            border-radius: 5px;
+        }
+
+        /* Video Tile */
+        .video-tile {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+
+        /* Desktop Tile */
+        .desktop-tile {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        }
+
+        /* Settings Tile */
+        .settings-tile {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+
+        /* People Tile */
+        .people-tile {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        /* SkyDrive Tile */
+        .skydrive-tile {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+        }
+
+        /* Internet Explorer Tile */
+        .ie-tile {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+        }
+
+        .ie-logo {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        /* News Tile */
+        .news-tile {
+            background: linear-gradient(135deg, #f39c12 0%, #d68910 100%);
+        }
+
+        /* Sports Tile */
+        .sports-tile {
+            background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+        }
+
+        /* Games Tile */
+        .games-tile {
+            background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+        }
+
+        /* Finance Tile */
+        .finance-tile {
+            background: linear-gradient(135deg, #16a085 0%, #138d75 100%);
+        }
+
+        /* Travel Tile */
+        .travel-tile {
+            background: linear-gradient(135deg, #d35400 0%, #ba4a00 100%);
+        }
+
+        /* Food & Drink Tile */
+        .food-tile {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+        }
+
+        /* Health & Fitness Tile */
+        .health-tile {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        /* Reading List Tile */
+        .reading-tile {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        /* Maps Tile */
+        .maps-tile {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+        }
+
+        /* Camera Tile */
+        .camera-tile {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        }
+
+        /* Calculator Tile */
+        .calc-tile {
+            background: linear-gradient(135deg, #7f8c8d 0%, #6c7a7b 100%);
+        }
+
+        /* Alarm Tile */
+        .alarm-tile {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        /* Sound Recorder Tile */
+        .sound-tile {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+
+        /* Scan Tile */
+        .scan-tile {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+        }
+
+        /* Notepad Tile */
+        .notepad-tile {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        /* Paint Tile */
+        .paint-tile {
+            background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+        }
+
+        /* ==================== APP MODAL ==================== */
+        .app-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .app-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .app-window {
+            background: #f5f5f5;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .app-header {
+            background: linear-gradient(180deg, #4a90d9 0%, #357abd 100%);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: move;
+            user-select: none;
+        }
+
+        .app-title {
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-close {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .app-close:hover {
+            background: #e74c3c;
+        }
+
+        .app-content {
+            overflow: auto;
+            background: white;
+        }
+
+        /* Calculator App */
+        .calculator-app {
+            padding: 20px;
+            background: #2c3e50;
+            width: 320px;
+        }
+
+        .calc-display {
+            background: #1a252f;
+            color: #ecf0f1;
+            padding: 20px;
+            text-align: right;
+            font-size: 36px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .calc-btn {
+            padding: 20px;
+            font-size: 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calc-btn.number {
+            background: #34495e;
+            color: #ecf0f1;
+        }
+
+        .calc-btn.number:hover {
+            background: #3d566e;
+        }
+
+        .calc-btn.operator {
+            background: #e67e22;
+            color: white;
+        }
+
+        .calc-btn.operator:hover {
+            background: #d35400;
+        }
+
+        .calc-btn.equals {
+            background: #27ae60;
+            color: white;
+        }
+
+        .calc-btn.equals:hover {
+            background: #229954;
+        }
+
+        .calc-btn.clear {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .calc-btn.clear:hover {
+            background: #c0392b;
+        }
+
+        /* Paint App */
+        .paint-app {
+            display: flex;
+            flex-direction: column;
+            width: 700px;
+            height: 500px;
+        }
+
+        .paint-toolbar {
+            padding: 10px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .paint-tool-btn {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .paint-tool-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .paint-tool-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .paint-color-picker {
+            width: 40px;
+            height: 35px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .paint-size-slider {
+            width: 100px;
+        }
+
+        .paint-canvas-container {
+            flex: 1;
+            overflow: auto;
+            background: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #paint-canvas {
+            background: white;
+            cursor: crosshair;
+        }
+
+        /* Notepad App */
+        .notepad-app {
+            display: flex;
+            flex-direction: column;
+            width: 600px;
+            height: 450px;
+        }
+
+        .notepad-toolbar {
+            padding: 10px;
+            background: #f8f8f8;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+
+        .notepad-btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .notepad-btn:hover {
+            background: #2980b9;
+        }
+
+        .notepad-editor {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .line-numbers {
+            background: #f0f0f0;
+            padding: 15px;
+            text-align: right;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            color: #999;
+            min-width: 50px;
+            user-select: none;
+            line-height: 1.5;
+        }
+
+        .notepad-textarea {
+            flex: 1;
+            border: none;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        /* Web Browser App */
+        .browser-app {
+            display: flex;
+            flex-direction: column;
+            width: 900px;
+            height: 600px;
+        }
+
+        .browser-toolbar {
+            padding: 10px;
+            background: #f8f8f8;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .browser-nav-btn {
+            width: 36px;
+            height: 36px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .browser-nav-btn:hover {
+            background: #d0d0d0;
+        }
+
+        .browser-url {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .browser-url:focus {
+            border-color: #3498db;
+        }
+
+        .browser-go {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .browser-go:hover {
+            background: #2980b9;
+        }
+
+        .browser-frame {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .metro-grid {
+                grid-template-columns: repeat(4, 150px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .metro-grid {
+                grid-template-columns: repeat(2, 150px);
+            }
+            .user-info, .charm-bar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="user-info">
+        <div class="user-avatar">JS</div>
+        <div class="user-name">John Smith</div>
+    </div>
+
+    <div class="start-button">
+        <svg viewBox="0 0 24 24">
+            <path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10-10h8v8h-8V3zm0 10h8v8h-8v-8z"/>
+        </svg>
+    </div>
+
+    <div class="charm-bar">
+        <button class="charm" title="Search">
+            <svg viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+        </button>
+        <button class="charm" title="Share">
+            <svg viewBox="0 0 24 24">
+                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+            </svg>
+        </button>
+        <button class="charm" title="Start">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10-10h8v8h-8V3zm0 10h8v8h-8v-8z"/>
+            </svg>
+        </button>
+        <button class="charm" title="Devices">
+            <svg viewBox="0 0 24 24">
+                <path d="M4 6h18V4H4c-1.1 0-2 .9-2 2v11H0v3h14v-3H4V6zm19 2h-6c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm-1 9h-4v-7h4v7z"/>
+            </svg>
+        </button>
+        <button class="charm" title="Settings">
+            <svg viewBox="0 0 24 24">
+                <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="desktop">
+        <div class="group-label">Pinned</div>
+        <div class="metro-grid">
+            <!-- Weather Tile - Live -->
+            <div class="tile tile-large weather-tile live-tile" data-search="weather">
+                <div class="tile-content">
+                    <div class="tile-icon">☀️</div>
+                    <div class="weather-temp">72°</div>
+                    <div class="weather-condition">Sunny</div>
+                    <div class="tile-label">Weather</div>
+                </div>
+                <div class="tile-content-alt">
+                    <div class="tile-icon">⛅</div>
+                    <div class="weather-temp">68°</div>
+                    <div class="weather-condition">Partly Cloudy</div>
+                    <div class="tile-label">Weather</div>
+                </div>
+            </div>
+    
+            <!-- Mail Tile -->
+            <div class="tile tile-wide tile-blue mail-tile" data-search="mail email">
+                <div class="mail-count">5</div>
+                <div class="tile-icon">✉️</div>
+                <div class="tile-label">Mail</div>
+            </div>
+    
+            <!-- Calendar Tile -->
+            <div class="tile tile-small calendar-tile" data-search="calendar date time">
+                <div class="calendar-date">6</div>
+                <div class="calendar-day">Friday</div>
+                <div class="calendar-month">February</div>
+            </div>
+    
+            <!-- People Tile -->
+            <div class="tile tile-small people-tile" data-search="people contacts">
+                <div class="tile-icon">👥</div>
+                <div class="tile-label">People</div>
+            </div>
+    
+            <!-- Messaging Tile -->
+            <div class="tile tile-wide tile-purple live-tile" data-search="messaging messages chat">
+                <div class="tile-content">
+                    <div class="tile-icon">💬</div>
+                    <div class="tile-label">Messaging</div>
+                </div>
+                <div class="tile-content-alt">
+                    <div class="tile-icon">📱</div>
+                    <div class="tile-label">3 new messages</div>
+                </div>
+            </div>
+    
+            <!-- Internet Explorer -->
+            <div class="tile tile-wide ie-tile" onclick="openApp('browser')" data-search="browser internet explorer web">
+                <div class="ie-logo">e</div>
+                <div class="tile-label">Internet Explorer</div>
+            </div>
+    
+            <!-- Store Tile -->
+            <div class="tile tile-small store-tile" data-search="store shop">
+                <div class="store-logo">🏪</div>
+                <div class="tile-label">Store</div>
+            </div>
+    
+            <!-- Photos Tile -->
+            <div class="tile tile-wide photos-tile" data-search="photos images pictures gallery">
+                <div class="tile-icon">📷</div>
+                <div class="tile-label">Photos</div>
+            </div>
+    
+            <!-- SkyDrive -->
+            <div class="tile tile-small skydrive-tile" data-search="skydrive cloud onedrive">
+                <div class="tile-icon">☁️</div>
+                <div class="tile-label">SkyDrive</div>
+            </div>
+    
+            <!-- Music Tile -->
+            <div class="tile tile-wide music-tile live-tile" data-search="music audio songs">
+                <div class="tile-content">
+                    <div class="tile-icon">🎵</div>
+                    <div class="tile-label">Music</div>
+                </div>
+                <div class="tile-content-alt">
+                    <div class="tile-icon">🎶</div>
+                    <div class="tile-label">Now Playing</div>
+                </div>
+            </div>
+    
+            <!-- Video Tile -->
+            <div class="tile tile-small video-tile" data-search="video movies">
+                <div class="tile-icon">🎬</div>
+                <div class="tile-label">Video</div>
+            </div>
+    
+            <!-- Games Tile -->
+            <div class="tile tile-wide games-tile" data-search="games gaming">
+                <div class="tile-icon">🎮</div>
+                <div class="tile-label">Games</div>
+            </div>
+    
+            <!-- News Tile -->
+            <div class="tile tile-small news-tile" data-search="news">
+                <div class="tile-icon">📰</div>
+                <div class="tile-label">News</div>
+            </div>
+    
+            <!-- Sports Tile -->
+            <div class="tile tile-small sports-tile" data-search="sports">
+                <div class="tile-icon">⚽</div>
+                <div class="tile-label">Sports</div>
+            </div>
+    
+            <!-- Finance Tile -->
+            <div class="tile tile-small finance-tile" data-search="finance money stock">
+                <div class="tile-icon">📈</div>
+                <div class="tile-label">Finance</div>
+            </div>
+    
+            <!-- Travel Tile -->
+            <div class="tile tile-small travel-tile" data-search="travel trip">
+                <div class="tile-icon">✈️</div>
+                <div class="tile-label">Travel</div>
+            </div>
+    
+            <!-- Food & Drink -->
+            <div class="tile tile-small food-tile" data-search="food drink restaurant">
+                <div class="tile-icon">🍽️</div>
+                <div class="tile-label">Food & Drink</div>
+            </div>
+    
+            <!-- Health & Fitness -->
+            <div class="tile tile-small health-tile" data-search="health fitness workout">
+                <div class="tile-icon">💪</div>
+                <div class="tile-label">Health</div>
+            </div>
+    
+            <!-- Reading List -->
+            <div class="tile tile-small reading-tile" data-search="reading books">
+                <div class="tile-icon">📚</div>
+                <div class="tile-label">Reading List</div>
+            </div>
+    
+            <!-- Maps -->
+            <div class="tile tile-small maps-tile" data-search="maps navigation">
+                <div class="tile-icon">🗺️</div>
+                <div class="tile-label">Maps</div>
+            </div>
+        </div>
+
+        <div class="group-label">Life at a glance</div>
+        <div class="metro-grid">
+            <!-- Desktop Tile -->
+            <div class="tile tile-wide desktop-tile" data-search="desktop">
+                <div class="tile-icon">🖥️</div>
+                <div class="tile-label">Desktop</div>
+            </div>
+    
+            <!-- Settings Tile -->
+            <div class="tile tile-small settings-tile" data-search="settings configuration">
+                <div class="tile-icon">⚙️</div>
+                <div class="tile-label">PC Settings</div>
+            </div>
+    
+            <!-- Control Panel -->
+            <div class="tile tile-small tile-dark" data-search="control panel">
+                <div class="tile-icon">🔧</div>
+                <div class="tile-label">Control Panel</div>
+            </div>
+    
+            <!-- File Explorer -->
+            <div class="tile tile-small tile-yellow" data-search="file explorer files">
+                <div class="tile-icon">📁</div>
+                <div class="tile-label">File Explorer</div>
+            </div>
+    
+            <!-- Calculator - WORKING -->
+            <div class="tile tile-small calc-tile" onclick="openApp('calculator')" data-search="calculator math calc">
+                <div class="tile-icon">🧮</div>
+                <div class="tile-label">Calculator</div>
+            </div>
+    
+            <!-- Alarm -->
+            <div class="tile tile-small alarm-tile" data-search="alarm clock timer">
+                <div class="tile-icon">⏰</div>
+                <div class="tile-label">Alarm</div>
+            </div>
+    
+            <!-- Sound Recorder -->
+            <div class="tile tile-small sound-tile" data-search="sound recorder audio">
+                <div class="tile-icon">🎙️</div>
+                <div class="tile-label">Sound Recorder</div>
+            </div>
+    
+            <!-- Camera -->
+            <div class="tile tile-small camera-tile" data-search="camera photo webcam">
+                <div class="tile-icon">📸</div>
+                <div class="tile-label">Camera</div>
+            </div>
+    
+            <!-- Scan -->
+            <div class="tile tile-small scan-tile" data-search="scan printer">
+                <div class="tile-icon">🖨️</div>
+                <div class="tile-label">Scan</div>
+            </div>
+    
+            <!-- Notepad - WORKING -->
+            <div class="tile tile-small notepad-tile" onclick="openApp('notepad')" data-search="notepad text editor">
+                <div class="tile-icon">📝</div>
+                <div class="tile-label">Notepad</div>
+            </div>
+    
+            <!-- Paint - WORKING -->
+            <div class="tile tile-small paint-tile" onclick="openApp('paint')" data-search="paint drawing">
+                <div class="tile-icon">🎨</div>
+                <div class="tile-label">Paint</div>
+            </div>
+    
+            <!-- Command Prompt -->
+            <div class="tile tile-small tile-indigo" data-search="command prompt terminal cmd">
+                <div class="tile-icon">💻</div>
+                <div class="tile-label">Command Prompt</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <input type="text" placeholder="Search for apps, settings, and documents">
+    </div>
+
+    <!-- App Modal -->
+    <div class="app-modal" id="app-modal">
+        <div class="app-window" id="app-window">
+            <div class="app-header">
+                <div class="app-title" id="app-title">
+                    <span id="app-icon"></span>
+                    <span id="app-name"></span>
+                </div>
+                <button class="app-close" onclick="closeApp()">×</button>
+            </div>
+            <div class="app-content" id="app-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== APP DEFINITIONS ====================
+        const APPS = {
+            'calculator': {
+                name: 'Calculator',
+                icon: '🧮',
+                render: renderCalculator
+            },
+            'notepad': {
+                name: 'Notepad',
+                icon: '📝',
+                render: renderNotepad
+            },
+            'paint': {
+                name: 'Paint',
+                icon: '🎨',
+                render: renderPaint
+            },
+            'browser': {
+                name: 'Internet Explorer',
+                icon: '🌐',
+                render: renderBrowser
+            }
+        };
+
+        // ==================== APP MODAL MANAGEMENT ====================
+        function openApp(appId) {
+            const app = APPS[appId];
+            if (!app) return;
+
+            const modal = document.getElementById('app-modal');
+            const appIcon = document.getElementById('app-icon');
+            const appName = document.getElementById('app-name');
+            const appContent = document.getElementById('app-content');
+
+            appIcon.textContent = app.icon;
+            appName.textContent = app.name;
+            appContent.innerHTML = app.render();
+
+            modal.classList.add('show');
+
+            // Initialize app-specific functionality
+            if (appId === 'paint') {
+                initPaint();
+            } else if (appId === 'notepad') {
+                initNotepad();
+            } else if (appId === 'browser') {
+                initBrowser();
+            }
+        }
+
+        function closeApp() {
+            const modal = document.getElementById('app-modal');
+            modal.classList.remove('show');
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('app-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeApp();
+            }
+        });
+
+        // ==================== CALCULATOR APP ====================
+        let calcDisplay = '0';
+
+        function renderCalculator() {
+            return `
+                <div class="calculator-app">
+                    <div class="calc-display" id="calc-display">0</div>
+                    <div class="calc-buttons">
+                        <button class="calc-btn clear" onclick="calcClear()">C</button>
+                        <button class="calc-btn operator" onclick="calcInput('/')">÷</button>
+                        <button class="calc-btn operator" onclick="calcInput('*')">×</button>
+                        <button class="calc-btn operator" onclick="calcBackspace()">⌫</button>
+                        <button class="calc-btn number" onclick="calcInput('7')">7</button>
+                        <button class="calc-btn number" onclick="calcInput('8')">8</button>
+                        <button class="calc-btn number" onclick="calcInput('9')">9</button>
+                        <button class="calc-btn operator" onclick="calcInput('-')">−</button>
+                        <button class="calc-btn number" onclick="calcInput('4')">4</button>
+                        <button class="calc-btn number" onclick="calcInput('5')">5</button>
+                        <button class="calc-btn number" onclick="calcInput('6')">6</button>
+                        <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+                        <button class="calc-btn number" onclick="calcInput('1')">1</button>
+                        <button class="calc-btn number" onclick="calcInput('2')">2</button>
+                        <button class="calc-btn number" onclick="calcInput('3')">3</button>
+                        <button class="calc-btn equals" onclick="calcEquals()" style="grid-row: span 2;">=</button>
+                        <button class="calc-btn number" onclick="calcInput('0')" style="grid-column: span 2;">0</button>
+                        <button class="calc-btn number" onclick="calcInput('.')">.</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calcInput(value) {
+            const display = document.getElementById('calc-display');
+            if (!display) return;
+
+            if (calcDisplay === '0' && value !== '.') {
+                calcDisplay = value;
+            } else {
+                calcDisplay += value;
+            }
+            display.textContent = calcDisplay;
+        }
+
+        function calcClear() {
+            calcDisplay = '0';
+            const display = document.getElementById('calc-display');
+            if (display) display.textContent = '0';
+        }
+
+        function calcBackspace() {
+            calcDisplay = calcDisplay.slice(0, -1) || '0';
+            const display = document.getElementById('calc-display');
+            if (display) display.textContent = calcDisplay;
+        }
+
+        function calcEquals() {
+            try {
+                const result = eval(calcDisplay.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-'));
+                calcDisplay = String(result);
+                const display = document.getElementById('calc-display');
+                if (display) display.textContent = calcDisplay;
+            } catch (e) {
+                calcDisplay = 'Error';
+                const display = document.getElementById('calc-display');
+                if (display) display.textContent = 'Error';
+                setTimeout(() => {
+                    calcDisplay = '0';
+                    if (display) display.textContent = '0';
+                }, 1500);
+            }
+        }
+
+        // ==================== NOTEPAD APP ====================
+        function renderNotepad() {
+            return `
+                <div class="notepad-app">
+                    <div class="notepad-toolbar">
+                        <button class="notepad-btn" onclick="saveNotepad()">💾 Save</button>
+                        <button class="notepad-btn" onclick="clearNotepad()">🗑️ Clear</button>
+                        <button class="notepad-btn" onclick="copyNotepad()">📋 Copy</button>
+                    </div>
+                    <div class="notepad-editor">
+                        <div class="line-numbers" id="line-numbers">1</div>
+                        <textarea class="notepad-textarea" id="notepad-textarea" placeholder="Start typing..." oninput="updateLineNumbers()"></textarea>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initNotepad() {
+            updateLineNumbers();
+        }
+
+        function updateLineNumbers() {
+            const textarea = document.getElementById('notepad-textarea');
+            const lineNumbers = document.getElementById('line-numbers');
+            if (!textarea || !lineNumbers) return;
+
+            const lines = textarea.value.split('\n').length;
+            lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
+        }
+
+        function saveNotepad() {
+            const textarea = document.getElementById('notepad-textarea');
+            if (!textarea) return;
+
+            const content = textarea.value;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'notepad.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearNotepad() {
+            const textarea = document.getElementById('notepad-textarea');
+            if (!textarea) return;
+            if (confirm('Clear all content?')) {
+                textarea.value = '';
+                updateLineNumbers();
+            }
+        }
+
+        function copyNotepad() {
+            const textarea = document.getElementById('notepad-textarea');
+            if (!textarea) return;
+            textarea.select();
+            document.execCommand('copy');
+            alert('Copied to clipboard!');
+        }
+
+        // ==================== PAINT APP ====================
+        function renderPaint() {
+            return `
+                <div class="paint-app">
+                    <div class="paint-toolbar">
+                        <button class="paint-tool-btn active" data-tool="brush" onclick="setPaintTool(this, 'brush')">🖌️ Brush</button>
+                        <button class="paint-tool-btn" data-tool="eraser" onclick="setPaintTool(this, 'eraser')">🧹 Eraser</button>
+                        <button class="paint-tool-btn" data-tool="line" onclick="setPaintTool(this, 'line')">📏 Line</button>
+                        <button class="paint-tool-btn" data-tool="rect" onclick="setPaintTool(this, 'rect')">⬜ Rectangle</button>
+                        <button class="paint-tool-btn" data-tool="circle" onclick="setPaintTool(this, 'circle')">⭕ Circle</button>
+                        <input type="color" class="paint-color-picker" id="paint-color" value="#000000">
+                        <input type="range" class="paint-size-slider" id="paint-size" min="1" max="50" value="5">
+                        <button class="paint-tool-btn" onclick="clearPaintCanvas()">🗑️ Clear</button>
+                        <button class="paint-tool-btn" onclick="savePaintCanvas()">💾 Save</button>
+                    </div>
+                    <div class="paint-canvas-container">
+                        <canvas id="paint-canvas" width="680" height="400"></canvas>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initPaint() {
+            const canvas = document.getElementById('paint-canvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let startX = 0;
+            let startY = 0;
+            let currentTool = 'brush';
+            let savedImageData = null;
+
+            const getMousePos = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+            };
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                const pos = getMousePos(e);
+                lastX = pos.x;
+                lastY = pos.y;
+                startX = pos.x;
+                startY = pos.y;
+                currentTool = document.querySelector('.paint-tool-btn.active')?.dataset.tool || 'brush';
+
+                if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'circle') {
+                    savedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+
+                const pos = getMousePos(e);
+                const color = document.getElementById('paint-color').value;
+                const size = document.getElementById('paint-size').value;
+
+                ctx.strokeStyle = color;
+                ctx.fillStyle = color;
+                ctx.lineWidth = size;
+                ctx.lineCap = 'round';
+
+                if (currentTool === 'brush') {
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                    lastX = pos.x;
+                    lastY = pos.y;
+                } else if (currentTool === 'eraser') {
+                    ctx.strokeStyle = 'white';
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                    lastX = pos.x;
+                    lastY = pos.y;
+                } else if (currentTool === 'line') {
+                    ctx.putImageData(savedImageData, 0, 0);
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                } else if (currentTool === 'rect') {
+                    ctx.putImageData(savedImageData, 0, 0);
+                    ctx.strokeRect(startX, startY, pos.x - startX, pos.y - startY);
+                } else if (currentTool === 'circle') {
+                    ctx.putImageData(savedImageData, 0, 0);
+                    const radius = Math.sqrt(Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2));
+                    ctx.beginPath();
+                    ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isDrawing = false;
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                isDrawing = false;
+            });
+        }
+
+        function setPaintTool(btn, tool) {
+            document.querySelectorAll('.paint-tool-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function clearPaintCanvas() {
+            const canvas = document.getElementById('paint-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function savePaintCanvas() {
+            const canvas = document.getElementById('paint-canvas');
+            if (!canvas) return;
+            const link = document.createElement('a');
+            link.download = 'painting.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // ==================== BROWSER APP ====================
+        function renderBrowser() {
+            return `
+                <div class="browser-app">
+                    <div class="browser-toolbar">
+                        <button class="browser-nav-btn" onclick="browserBack()">←</button>
+                        <button class="browser-nav-btn" onclick="browserForward()">→</button>
+                        <button class="browser-nav-btn" onclick="browserRefresh()">↻</button>
+                        <input type="text" class="browser-url" id="browser-url" value="https://example.com" placeholder="Enter URL..." onkeypress="if(event.key==='Enter')browserNavigate()">
+                        <button class="browser-go" onclick="browserNavigate()">Go</button>
+                    </div>
+                    <iframe class="browser-frame" id="browser-frame" src="https://example.com" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
+                </div>
+            `;
+        }
+
+        function initBrowser() {
+            // Browser is initialized with default content
+        }
+
+        function browserNavigate() {
+            const urlInput = document.getElementById('browser-url');
+            const iframe = document.getElementById('browser-frame');
+            if (!urlInput || !iframe) return;
+
+            let url = urlInput.value.trim();
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            iframe.src = url;
+            urlInput.value = url;
+        }
+
+        function browserBack() {
+            const iframe = document.getElementById('browser-frame');
+            if (iframe && iframe.contentWindow) {
+                try {
+                    iframe.contentWindow.history.back();
+                } catch (e) {
+                    console.log('Cannot navigate back');
+                }
+            }
+        }
+
+        function browserForward() {
+            const iframe = document.getElementById('browser-frame');
+            if (iframe && iframe.contentWindow) {
+                try {
+                    iframe.contentWindow.history.forward();
+                } catch (e) {
+                    console.log('Cannot navigate forward');
+                }
+            }
+        }
+
+        function browserRefresh() {
+            const iframe = document.getElementById('browser-frame');
+            if (iframe) {
+                iframe.src = iframe.src;
+            }
+        }
+
+        // ==================== METRO UI FUNCTIONS ====================
+        // Update calendar tile with current date
+        function updateCalendar() {
+            const now = new Date();
+            const date = now.getDate();
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+            const calendarTile = document.querySelector('.calendar-tile');
+            if (calendarTile) {
+                calendarTile.querySelector('.calendar-date').textContent = date;
+                calendarTile.querySelector('.calendar-day').textContent = days[now.getDay()];
+                calendarTile.querySelector('.calendar-month').textContent = months[now.getMonth()];
+            }
+        }
+
+        updateCalendar();
+
+        // Charm bar hover effects
+        document.querySelectorAll('.charm').forEach(charm => {
+            charm.addEventListener('mouseenter', function() {
+                this.style.background = 'rgba(255, 255, 255, 0.3)';
+            });
+            charm.addEventListener('mouseleave', function() {
+                this.style.background = 'rgba(255, 255, 255, 0.1)';
+            });
+        });
+
+        // Search functionality - filter tiles
+        const searchInput = document.querySelector('.search-bar input');
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = this.value.toLowerCase().trim();
+            const tiles = document.querySelectorAll('.tile[data-search]');
+            
+            tiles.forEach(tile => {
+                const searchData = tile.dataset.search.toLowerCase();
+                if (searchTerm === '' || searchData.includes(searchTerm)) {
+                    tile.classList.remove('hidden');
+                } else {
+                    tile.classList.add('hidden');
+                }
+            });
+        });
+
+        // Add click animations to tiles
+        document.querySelectorAll('.tile').forEach(tile => {
+            tile.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+
+        // Keyboard shortcut to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeApp();
+            }
+        });
+    </script>
+</body>
+</html>
