@@ -64,6 +64,25 @@
             word-wrap: break-word;
         }
 
+        /* OS Navigation Icons */
+        .desktop-icon.os-link .icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .desktop-icon.os-link.beos .icon {
+            background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
+        }
+
+        .desktop-icon.os-link.metro .icon {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+        }
+
+        .desktop-icon.os-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
         /* Window */
         .window {
             position: absolute;
@@ -1691,6 +1710,65 @@
                         if (windowData) {
                             taskbar.addTask(windowData.id, pos.app);
                         }
+                    });
+                    desktop.appendChild(iconEl);
+                });
+
+                // Add OS navigation icons
+                this.addOSNavigationIcons(desktop);
+            }
+
+            addOSNavigationIcons(desktop) {
+                // Configuration
+                const ICON_OFFSET_FROM_RIGHT = 120;
+                const ICON_SPACING = 100;
+                
+                // SVG icon definitions for better maintainability
+                const OS_ICONS = {
+                    beos: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;">
+                        <rect fill="#ffd700" width="48" height="48" rx="8"/>
+                        <path fill="#000" d="M12 14h10v2H12zm0 4h10v2H12zm0 4h10v2H12zm14-8h10v2H26zm0 4h10v2H26zm0 4h10v2H26z"/>
+                        <circle fill="#e6c200" cx="24" cy="30" r="6"/>
+                    </svg>`,
+                    metro: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;">
+                        <rect fill="#0078d4" width="48" height="48" rx="4"/>
+                        <rect fill="#fff" x="10" y="10" width="12" height="12"/>
+                        <rect fill="#fff" x="26" y="10" width="12" height="12"/>
+                        <rect fill="#fff" x="10" y="26" width="12" height="12"/>
+                        <rect fill="#fff" x="26" y="26" width="12" height="12"/>
+                    </svg>`
+                };
+
+                const osLinks = [
+                    {
+                        name: 'BeOS Demo',
+                        url: 'beos.html',
+                        icon: OS_ICONS.beos,
+                        className: 'beos',
+                        x: window.innerWidth - ICON_OFFSET_FROM_RIGHT,
+                        y: 20
+                    },
+                    {
+                        name: 'Windows 8 Metro',
+                        url: 'metro.html',
+                        icon: OS_ICONS.metro,
+                        className: 'metro',
+                        x: window.innerWidth - ICON_OFFSET_FROM_RIGHT,
+                        y: 120
+                    }
+                ];
+
+                osLinks.forEach(link => {
+                    const iconEl = document.createElement('div');
+                    iconEl.className = `desktop-icon os-link ${link.className}`;
+                    iconEl.style.left = link.x + 'px';
+                    iconEl.style.top = link.y + 'px';
+                    iconEl.innerHTML = `
+                        <div class="icon">${link.icon}</div>
+                        <div class="label">${link.name}</div>
+                    `;
+                    iconEl.addEventListener('dblclick', () => {
+                        window.location.href = link.url;
                     });
                     desktop.appendChild(iconEl);
                 });

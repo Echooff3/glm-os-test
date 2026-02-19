@@ -67,6 +67,24 @@
             word-wrap: break-word;
         }
 
+        /* OS Navigation Icons */
+        .desktop-icon.os-link .icon {
+            border: 3px outset #ffffff;
+        }
+
+        .desktop-icon.os-link.windows .icon {
+            background: linear-gradient(180deg, #4a90d9 0%, #357abd 100%);
+        }
+
+        .desktop-icon.os-link.metro .icon {
+            background: linear-gradient(180deg, #0078d4 0%, #005a9e 100%);
+        }
+
+        .desktop-icon.os-link:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+        }
+
         /* Window */
         .window {
             position: absolute;
@@ -1676,6 +1694,64 @@
                         if (windowData) {
                             deskbar.addTask(windowData.id, pos.app);
                         }
+                    });
+                    desktop.appendChild(iconEl);
+                });
+
+                // Add OS navigation icons
+                this.addOSNavigationIcons(desktop);
+            }
+
+            addOSNavigationIcons(desktop) {
+                // Configuration
+                const ICON_OFFSET_FROM_RIGHT = 120;
+                const ICON_SPACING = 100;
+                
+                // SVG icon definitions for better maintainability
+                const OS_ICONS = {
+                    windows: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;">
+                        <rect fill="#4a90d9" width="48" height="48" rx="8"/>
+                        <path fill="#fff" d="M8 8l16-2v18H8V8zm18-2l14-2v22H26V6zM8 26h16v18l-16 2V26zm18 0h14v20l-14 2V26z"/>
+                    </svg>`,
+                    metro: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;">
+                        <rect fill="#0078d4" width="48" height="48" rx="4"/>
+                        <rect fill="#fff" x="10" y="10" width="12" height="12"/>
+                        <rect fill="#fff" x="26" y="10" width="12" height="12"/>
+                        <rect fill="#fff" x="10" y="26" width="12" height="12"/>
+                        <rect fill="#fff" x="26" y="26" width="12" height="12"/>
+                    </svg>`
+                };
+
+                const osLinks = [
+                    {
+                        name: 'Windows Demo',
+                        url: 'index.html',
+                        icon: OS_ICONS.windows,
+                        className: 'windows',
+                        x: window.innerWidth - ICON_OFFSET_FROM_RIGHT,
+                        y: 20
+                    },
+                    {
+                        name: 'Windows 8 Metro',
+                        url: 'metro.html',
+                        icon: OS_ICONS.metro,
+                        className: 'metro',
+                        x: window.innerWidth - ICON_OFFSET_FROM_RIGHT,
+                        y: 120
+                    }
+                ];
+
+                osLinks.forEach(link => {
+                    const iconEl = document.createElement('div');
+                    iconEl.className = `desktop-icon os-link ${link.className}`;
+                    iconEl.style.left = link.x + 'px';
+                    iconEl.style.top = link.y + 'px';
+                    iconEl.innerHTML = `
+                        <div class="icon">${link.icon}</div>
+                        <div class="label">${link.name}</div>
+                    `;
+                    iconEl.addEventListener('dblclick', () => {
+                        window.location.href = link.url;
                     });
                     desktop.appendChild(iconEl);
                 });
