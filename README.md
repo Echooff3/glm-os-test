@@ -58,9 +58,9 @@ Tested and working on:
 
 Icons are defined using inline SVG within each demo file. To customize:
 
-1. **Windows Demo** (`index.html`): Look for `addOSNavigationIcons()` function around line 1700
-2. **BeOS Demo** (`beos.html`): Look for `addOSNavigationIcons()` function around line 1685
-3. **Metro Demo** (`metro.html`): Look for the OS Demo tiles section around line 1110
+1. **Windows Demo** (`index.html`): Look for the `addOSNavigationIcons()` method in the Desktop class
+2. **BeOS Demo** (`beos.html`): Look for the `addOSNavigationIcons()` method in the Desktop class
+3. **Metro Demo** (`metro.html`): Look for the OS Demo tiles section with the "Try Other OS Demos" heading
 
 ### Adding New OS Demos
 

@@ -1719,11 +1719,27 @@
             }
 
             addOSNavigationIcons(desktop) {
+                // SVG icon definitions for better maintainability
+                const OS_ICONS = {
+                    beos: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;">
+                        <rect fill="#ffd700" width="48" height="48" rx="8"/>
+                        <path fill="#000" d="M12 14h10v2H12zm0 4h10v2H12zm0 4h10v2H12zm14-8h10v2H26zm0 4h10v2H26zm0 4h10v2H26z"/>
+                        <circle fill="#e6c200" cx="24" cy="30" r="6"/>
+                    </svg>`,
+                    metro: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;">
+                        <rect fill="#0078d4" width="48" height="48" rx="4"/>
+                        <rect fill="#fff" x="10" y="10" width="12" height="12"/>
+                        <rect fill="#fff" x="26" y="10" width="12" height="12"/>
+                        <rect fill="#fff" x="10" y="26" width="12" height="12"/>
+                        <rect fill="#fff" x="26" y="26" width="12" height="12"/>
+                    </svg>`
+                };
+
                 const osLinks = [
                     {
                         name: 'BeOS Demo',
                         url: 'beos.html',
-                        icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;"><rect fill="#ffd700" width="48" height="48" rx="8"/><path fill="#000" d="M12 14h10v2H12zm0 4h10v2H12zm0 4h10v2H12zm14-8h10v2H26zm0 4h10v2H26zm0 4h10v2H26z"/><circle fill="#e6c200" cx="24" cy="30" r="6"/></svg>`,
+                        icon: OS_ICONS.beos,
                         className: 'beos',
                         x: window.innerWidth - 120,
                         y: 20
@@ -1731,7 +1747,7 @@
                     {
                         name: 'Windows 8 Metro',
                         url: 'metro.html',
-                        icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;"><rect fill="#0078d4" width="48" height="48" rx="4"/><rect fill="#fff" x="10" y="10" width="12" height="12"/><rect fill="#fff" x="26" y="10" width="12" height="12"/><rect fill="#fff" x="10" y="26" width="12" height="12"/><rect fill="#fff" x="26" y="26" width="12" height="12"/></svg>`,
+                        icon: OS_ICONS.metro,
                         className: 'metro',
                         x: window.innerWidth - 120,
                         y: 120
