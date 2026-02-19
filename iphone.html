@@ -1080,8 +1080,13 @@ function safeCalcEval(expr) {
             tokens.push(expr[i]); i++; continue;
         }
         let num = '';
-        while (i < expr.length && (expr[i] >= '0' && expr[i] <= '9' || expr[i] === '.' || (expr[i] === 'e'))) {
+        while (i < expr.length && (expr[i] >= '0' && expr[i] <= '9' || expr[i] === '.')) {
             num += expr[i]; i++;
+        }
+        if (i < expr.length && expr[i] === 'e') {
+            num += expr[i]; i++;
+            if (i < expr.length && (expr[i] === '+' || expr[i] === '-')) { num += expr[i]; i++; }
+            while (i < expr.length && expr[i] >= '0' && expr[i] <= '9') { num += expr[i]; i++; }
         }
         if (num === '') throw new Error('Unexpected character');
         tokens.push(parseFloat(num));
@@ -1190,10 +1195,9 @@ function clearNotepad() {
 function copyNotepad() {
     const textarea = document.getElementById('notes-textarea');
     if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(textarea.value);
+        navigator.clipboard.writeText(textarea.value).catch(() => {});
     } else {
-        textarea.select();
-        document.execCommand('copy');
+        try { textarea.select(); document.execCommand('copy'); } catch (e) { /* ignore */ }
     }
 }
 
