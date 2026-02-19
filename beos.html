@@ -1703,6 +1703,10 @@
             }
 
             addOSNavigationIcons(desktop) {
+                // Configuration
+                const ICON_OFFSET_FROM_RIGHT = 120;
+                const ICON_SPACING = 100;
+                
                 // SVG icon definitions for better maintainability
                 const OS_ICONS = {
                     windows: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;">
@@ -1724,7 +1728,7 @@
                         url: 'index.html',
                         icon: OS_ICONS.windows,
                         className: 'windows',
-                        x: window.innerWidth - 120,
+                        x: window.innerWidth - ICON_OFFSET_FROM_RIGHT,
                         y: 20
                     },
                     {
@@ -1732,7 +1736,7 @@
                         url: 'metro.html',
                         icon: OS_ICONS.metro,
                         className: 'metro',
-                        x: window.innerWidth - 120,
+                        x: window.innerWidth - ICON_OFFSET_FROM_RIGHT,
                         y: 120
                     }
                 ];
