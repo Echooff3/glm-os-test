@@ -152,6 +152,17 @@
         .tile-sky { background: linear-gradient(135deg, #00bcf2 0%, #0091bd 100%); }
         .tile-lime { background: linear-gradient(135deg, #a4c400 0%, #7a9100 100%); }
         .tile-magenta { background: linear-gradient(135deg, #e3008c 0%, #b0006c 100%); }
+
+        /* OS Demo Tiles */
+        .os-demo-tile {
+            cursor: pointer !important;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .os-demo-tile:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
         .tile-indigo { background: linear-gradient(135deg, #6b69d6 0%, #4a48a3 100%); }
 
         /* Live Tile Animation */
@@ -1103,6 +1114,32 @@
             <div class="tile tile-small tile-indigo" data-search="command prompt terminal cmd">
                 <div class="tile-icon">💻</div>
                 <div class="tile-label">Command Prompt</div>
+            </div>
+        </div>
+
+        <!-- OS Demos Section -->
+        <div class="group-label">Try Other OS Demos</div>
+        <div class="metro-grid">
+            <!-- Windows Demo Tile -->
+            <div class="tile tile-wide tile-blue os-demo-tile" onclick="window.location.href='index.html'" data-search="windows demo">
+                <div class="tile-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:48px;height:48px;">
+                        <path fill="#fff" d="M4 4l16-2v18H4V4zm18-2l14-2v22H22V2zM4 22h16v18l-16 2V22zm18 0h14v20l-14 2V22z"/>
+                    </svg>
+                </div>
+                <div class="tile-label">Windows Demo</div>
+            </div>
+
+            <!-- BeOS Demo Tile -->
+            <div class="tile tile-wide tile-yellow os-demo-tile" onclick="window.location.href='beos.html'" data-search="beos demo">
+                <div class="tile-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:48px;height:48px;">
+                        <rect fill="#ffd700" width="48" height="48" rx="8"/>
+                        <path fill="#000" d="M8 10h14v2H8zm0 4h14v2H8zm0 4h14v2H8zm18-8h14v2H26zm0 4h14v2H26zm0 4h14v2H26z"/>
+                        <circle fill="#e6c200" cx="24" cy="30" r="8"/>
+                    </svg>
+                </div>
+                <div class="tile-label">BeOS Demo</div>
             </div>
         </div>
     </div>
