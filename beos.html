@@ -1693,7 +1693,7 @@
                         <div class="icon">${app.icon}</div>
                         <div class="label">${app.name}</div>
                     `;
-                    iconEl.addEventListener('dblclick', () => {
+                    iconEl.addEventListener('click', () => {
                         const windowData = windowManager.createWindow(pos.app);
                         if (windowData) {
                             deskbar.addTask(windowData.id, pos.app);
@@ -1768,7 +1768,7 @@
                         <div class="icon">${link.icon}</div>
                         <div class="label">${link.name}</div>
                     `;
-                    iconEl.addEventListener('dblclick', () => {
+                    iconEl.addEventListener('click', () => {
                         window.location.href = link.url;
                     });
                     desktop.appendChild(iconEl);
