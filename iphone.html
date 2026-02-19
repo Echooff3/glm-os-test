@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>iPhone OS</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background: #1a1a2e;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Desktop background */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 80%, #0a1628 0%, #000 100%);
+    z-index: -1;
+}
+
+/* Phone frame */
+#phone {
+    width: 320px;
+    height: 580px;
+    background: #1a1a1a;
+    border-radius: 40px;
+    border: 3px solid #555;
+    box-shadow: 0 0 0 2px #222, 0 0 40px rgba(0,0,0,.6), inset 0 0 0 2px #333;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Earpiece */
+#phone::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+    z-index: 100;
+}
+
+/* Camera */
+#phone::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%) translateX(-40px);
+    width: 8px;
+    height: 8px;
+    background: #1a2a3a;
+    border-radius: 50%;
+    border: 1px solid #333;
+    z-index: 100;
+}
+
+/* Screen area */
+#screen {
+    margin: 32px 8px 8px 8px;
+    flex: 1;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Home button */
+#home-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #555;
+    background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+    margin: 4px auto 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+#home-btn:active { background: linear-gradient(180deg, #333, #222); }
+#home-btn .sq {
+    width: 14px; height: 14px;
+    border: 1.5px solid #888;
+    border-radius: 3px;
+}
+
+/* ===== STATUS BAR ===== */
+#status-bar {
+    height: 20px;
+    background: linear-gradient(180deg, #4a6a9a 0%, #1a3a6a 50%, #0a2040 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px;
+    font-size: 11px;
+    color: #fff;
+    flex-shrink: 0;
+    z-index: 50;
+}
+#status-bar .left, #status-bar .right { display: flex; align-items: center; gap: 3px; }
+.signal-bars { display: flex; align-items: flex-end; gap: 1px; height: 10px; }
+.signal-bars .bar { width: 3px; background: #fff; border-radius: 0.5px; }
+.signal-bars .bar:nth-child(1) { height: 3px; }
+.signal-bars .bar:nth-child(2) { height: 5px; }
+.signal-bars .bar:nth-child(3) { height: 7px; }
+.signal-bars .bar:nth-child(4) { height: 9px; }
+.signal-bars .bar:nth-child(5) { height: 10px; opacity: .3; }
+.wifi-icon { font-size: 9px; }
+.battery { display: flex; align-items: center; gap: 2px; font-size: 10px; }
+.battery-icon {
+    width: 18px; height: 9px;
+    border: 1px solid #fff;
+    border-radius: 2px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 1px;
+}
+.battery-icon::after {
+    content: '';
+    position: absolute;
+    right: -3px;
+    width: 2px; height: 4px;
+    background: #fff;
+    border-radius: 0 1px 1px 0;
+}
+.battery-fill { height: 100%; width: 75%; background: #4cd964; border-radius: 1px; }
+
+/* ===== LOCK SCREEN ===== */
+#lock-screen {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #0a0e1a 0%, #0c1a2e 30%, #0a1628 60%, #000810 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 40;
+    transition: transform .4s ease;
+}
+#lock-screen.unlocked { transform: translateY(-100%); }
+
+#lock-time {
+    font-size: 54px;
+    font-weight: 100;
+    color: #fff;
+    margin-top: 60px;
+    letter-spacing: 2px;
+}
+#lock-date {
+    font-size: 14px;
+    color: #ccc;
+    margin-top: 4px;
+}
+
+/* Slide to unlock */
+#slider-track {
+    position: absolute;
+    bottom: 40px;
+    width: 260px;
+    height: 40px;
+    background: rgba(0,0,0,.5);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,.15);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+#slider-thumb {
+    width: 52px;
+    height: 34px;
+    background: linear-gradient(180deg, #ddd, #999);
+    border-radius: 17px;
+    margin-left: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    touch-action: none;
+}
+#slider-thumb svg { width: 20px; height: 20px; }
+#slider-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    color: rgba(255,255,255,.5);
+    pointer-events: none;
+    animation: slideShimmer 2s ease-in-out infinite;
+}
+@keyframes slideShimmer {
+    0%, 100% { opacity: .3; }
+    50% { opacity: .8; }
+}
+
+/* ===== HOME SCREEN ===== */
+#home-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background:
+        radial-gradient(ellipse at 50% 90%, #0a1e3a 0%, transparent 50%),
+        radial-gradient(ellipse at 30% 70%, #0a1628 0%, transparent 40%),
+        linear-gradient(180deg, #020810 0%, #081020 40%, #0a1830 70%, #040c18 100%);
+    position: relative;
+}
+/* Starfield */
+#home-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,.6), transparent),
+        radial-gradient(1px 1px at 80px 60px, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 150px 20px, rgba(255,255,255,.5), transparent),
+        radial-gradient(1px 1px at 200px 80px, rgba(255,255,255,.3), transparent),
+        radial-gradient(1px 1px at 50px 120px, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 250px 140px, rgba(255,255,255,.5), transparent),
+        radial-gradient(1px 1px at 120px 170px, rgba(255,255,255,.3), transparent),
+        radial-gradient(1px 1px at 180px 200px, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 40px 250px, rgba(255,255,255,.5), transparent),
+        radial-gradient(1px 1px at 220px 290px, rgba(255,255,255,.3), transparent),
+        radial-gradient(2px 2px at 100px 100px, rgba(255,255,255,.2), transparent),
+        radial-gradient(2px 2px at 270px 50px, rgba(255,255,255,.15), transparent);
+    pointer-events: none;
+}
+
+/* App grid */
+#app-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px 8px;
+    padding: 16px 12px 8px;
+    align-content: start;
+}
+
+/* Page dots */
+#page-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 0;
+    flex-shrink: 0;
+}
+.dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.3);
+}
+.dot.active { background: #fff; }
+
+/* ===== DOCK ===== */
+#dock {
+    display: flex;
+    justify-content: space-around;
+    padding: 6px 8px 8px;
+    background: linear-gradient(180deg, rgba(100,120,140,.4) 0%, rgba(60,80,100,.6) 100%);
+    border-top: 1px solid rgba(255,255,255,.15);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+}
+
+/* ===== APP ICON ===== */
+.app-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.app-icon:active .icon-img { transform: scale(.9); }
+
+.icon-img {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4);
+    transition: transform .1s;
+}
+/* Glossy reflection */
+.icon-img::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,.05) 100%);
+    border-radius: 12px 12px 0 0;
+    pointer-events: none;
+}
+.icon-img svg { width: 28px; height: 28px; z-index: 1; }
+
+.icon-label {
+    font-size: 10px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,.8);
+    text-align: center;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Dock icons - no label */
+#dock .icon-label { display: none; }
+#dock .icon-img { width: 48px; height: 48px; }
+
+/* Icon colors */
+.ic-green { background: linear-gradient(180deg, #6ae06a, #2ea82e); }
+.ic-blue { background: linear-gradient(180deg, #5ac8fa, #007aff); }
+.ic-orange { background: linear-gradient(180deg, #ffb74d, #ff9500); }
+.ic-red { background: linear-gradient(180deg, #ff6b6b, #ff3b30); }
+.ic-purple { background: linear-gradient(180deg, #c39dff, #8e44ad); }
+.ic-gray { background: linear-gradient(180deg, #b0b0b0, #8e8e93); }
+.ic-yellow { background: linear-gradient(180deg, #fff176, #ffc107); }
+.ic-teal { background: linear-gradient(180deg, #80deea, #009688); }
+.ic-dkblue { background: linear-gradient(180deg, #5c7cfa, #2c3e8e); }
+.ic-brown { background: linear-gradient(180deg, #a1887f, #6d4c41); }
+.ic-white { background: linear-gradient(180deg, #f5f5f5, #ccc); }
+.ic-dkgreen { background: linear-gradient(180deg, #66bb6a, #2e7d32); }
+.ic-pink { background: linear-gradient(180deg, #f48fb1, #e91e63); }
+
+/* ===== APP VIEW ===== */
+#app-view {
+    position: absolute;
+    top: 20px; /* below status bar */
+    left: 0; right: 0; bottom: 0;
+    background: #ececec;
+    z-index: 30;
+    display: none;
+    flex-direction: column;
+    animation: appSlideIn .25s ease;
+}
+#app-view.visible { display: flex; }
+@keyframes appSlideIn {
+    from { opacity: 0; transform: scale(1.1); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* App title bar */
+.app-titlebar {
+    height: 44px;
+    background: linear-gradient(180deg, #b0c4de 0%, #8faabe 50%, #7a98b2 100%);
+    border-bottom: 1px solid #5a7a9a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+}
+.app-titlebar h1 {
+    font-size: 17px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 -1px 1px rgba(0,0,0,.3);
+}
+.app-back {
+    position: absolute;
+    left: 8px;
+    background: linear-gradient(180deg, #8faabe, #6a8aaa);
+    border: 1px solid #5a7a9a;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+    text-shadow: 0 -1px 1px rgba(0,0,0,.3);
+}
+.app-back:active { background: #5a7a9a; }
+
+.app-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ===== CALCULATOR ===== */
+.calc-container {
+    background: #000;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.calc-display {
+    padding: 10px 16px;
+    text-align: right;
+    font-size: 36px;
+    color: #fff;
+    background: #333;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    word-break: break-all;
+    overflow: hidden;
+}
+.calc-buttons {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: #333;
+}
+.calc-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    background: #555;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    min-height: 42px;
+}
+.calc-btn:active { background: #777; }
+.calc-btn.op { background: #ff9500; }
+.calc-btn.op:active { background: #cc7a00; }
+.calc-btn.fn { background: #a0a0a0; color: #000; }
+.calc-btn.fn:active { background: #ccc; }
+.calc-btn.zero { grid-column: span 2; }
+
+/* ===== NOTES ===== */
+.notes-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fffde7;
+}
+.notes-toolbar {
+    display: flex;
+    gap: 6px;
+    padding: 6px 8px;
+    background: linear-gradient(180deg, #f5e6b8, #e8d5a0);
+    border-bottom: 1px solid #c0a868;
+}
+.notes-toolbar button {
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid #b09860;
+    background: linear-gradient(180deg, #f5e6b8, #d8c490);
+    font-size: 12px;
+    cursor: pointer;
+    color: #4a3a10;
+}
+.notes-toolbar button:active { background: #c0a868; }
+.notes-textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 12px;
+    font-size: 15px;
+    font-family: 'Marker Felt', 'Comic Sans MS', cursive;
+    background: repeating-linear-gradient(
+        transparent, transparent 27px, #d4c098 27px, #d4c098 28px
+    );
+    background-color: #fffde7;
+    line-height: 28px;
+    resize: none;
+    color: #1a1a1a;
+}
+
+/* ===== CLOCK ===== */
+.clock-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: #111;
+    color: #fff;
+}
+.analog-clock {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 4px solid #ddd;
+    position: relative;
+    background: #222;
+    box-shadow: 0 0 20px rgba(0,0,0,.5);
+}
+.clock-face { position: absolute; inset: 0; }
+.clock-mark {
+    position: absolute;
+    width: 2px;
+    height: 8px;
+    background: #aaa;
+    left: 50%;
+    top: 8px;
+    transform-origin: 50% 82px;
+    margin-left: -1px;
+}
+.clock-mark.major { height: 12px; width: 3px; background: #fff; margin-left: -1.5px; }
+.clock-hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: 50% 100%;
+    border-radius: 2px;
+}
+.hand-hour { width: 4px; height: 45px; background: #fff; margin-left: -2px; }
+.hand-minute { width: 3px; height: 60px; background: #fff; margin-left: -1.5px; }
+.hand-second { width: 1px; height: 65px; background: #ff3b30; margin-left: -.5px; }
+.clock-center {
+    position: absolute;
+    width: 8px; height: 8px;
+    background: #ff3b30;
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+}
+.digital-time {
+    font-size: 40px;
+    font-weight: 200;
+    margin-top: 20px;
+    letter-spacing: 2px;
+}
+.digital-date { font-size: 14px; color: #999; margin-top: 6px; }
+
+/* ===== WEATHER ===== */
+.weather-container {
+    height: 100%;
+    background: linear-gradient(180deg, #4a90d9, #87ceeb);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 30px;
+}
+.weather-city { font-size: 22px; font-weight: 300; }
+.weather-temp { font-size: 64px; font-weight: 100; margin: 10px 0; }
+.weather-desc { font-size: 16px; opacity: .9; }
+.weather-sun { margin: 20px 0; }
+.weather-details {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    font-size: 13px;
+    opacity: .85;
+}
+.weather-details div { text-align: center; }
+.weather-details .val { font-size: 18px; font-weight: 500; margin-top: 4px; }
+
+/* ===== SETTINGS ===== */
+.settings-container {
+    height: 100%;
+    background: #e8e8ed;
+}
+.settings-group {
+    background: #fff;
+    margin: 12px 10px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.settings-group-title {
+    font-size: 12px;
+    color: #6d6d72;
+    text-transform: uppercase;
+    padding: 8px 14px 4px;
+}
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #e8e8ed;
+    font-size: 15px;
+    cursor: pointer;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row .label { display: flex; align-items: center; gap: 10px; }
+.settings-row .label .sicon {
+    width: 28px; height: 28px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px;
+}
+.settings-row .arrow { color: #c7c7cc; font-size: 18px; }
+
+/* Toggle switch */
+.toggle {
+    width: 44px; height: 26px;
+    border-radius: 13px;
+    background: #e8e8ed;
+    position: relative;
+    cursor: pointer;
+    transition: background .2s;
+    flex-shrink: 0;
+}
+.toggle.on { background: #4cd964; }
+.toggle::after {
+    content: '';
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    position: absolute;
+    top: 2px; left: 2px;
+    transition: transform .2s;
+}
+.toggle.on::after { transform: translateX(18px); }
+
+/* ===== PHOTOS ===== */
+.photos-container {
+    height: 100%;
+    background: #1a1a1a;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 2px;
+    align-content: start;
+}
+.photo-thumb {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: rgba(255,255,255,.5);
+}
+
+/* ===== CALENDAR ===== */
+.calendar-container {
+    height: 100%;
+    background: #f5f5f5;
+}
+.cal-header {
+    background: linear-gradient(180deg, #b0c4de, #7a98b2);
+    padding: 10px;
+    text-align: center;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 0 -1px 1px rgba(0,0,0,.3);
+}
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    padding: 8px;
+}
+.cal-day-name {
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    color: #666;
+    padding: 4px 0;
+}
+.cal-day {
+    text-align: center;
+    font-size: 14px;
+    padding: 8px 4px;
+    border-radius: 50%;
+    width: 32px; height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2px auto;
+}
+.cal-day.today {
+    background: #007aff;
+    color: #fff;
+    font-weight: bold;
+}
+.cal-day.empty { visibility: hidden; }
+
+/* ===== MAPS ===== */
+.maps-container {
+    height: 100%;
+    background: #e8dcc8;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.maps-grid {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(180,160,130,.3) 1px, transparent 1px),
+        linear-gradient(rgba(180,160,130,.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+.maps-roads {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+.maps-road {
+    position: absolute;
+    background: #f5e6b8;
+    border: 1px solid #d4c098;
+}
+.maps-road.h { height: 14px; width: 100%; }
+.maps-road.v { width: 14px; height: 100%; }
+.maps-pin {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.maps-pin-head {
+    width: 24px; height: 24px;
+    background: #ff3b30;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 2px solid #cc2a22;
+    box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+.maps-pin-label {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #333;
+    font-weight: bold;
+    background: rgba(255,255,255,.8);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* ===== OS DEMOS ===== */
+.demos-container {
+    height: 100%;
+    background: #e8e8ed;
+}
+.demo-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #fff;
+    border-bottom: 1px solid #e8e8ed;
+    cursor: pointer;
+    text-decoration: none;
+    color: #000;
+    font-size: 15px;
+}
+.demo-link:active { background: #d0d0d5; }
+.demo-link .dl-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+}
+.demo-link .arrow { margin-left: auto; color: #c7c7cc; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 380px) {
+    #phone {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+    }
+    #phone::before, #phone::after { display: none; }
+    #screen { margin: 0; border-radius: 0; }
+    #home-btn { display: none; }
+}
+@media (min-width: 381px) and (max-height: 620px) {
+    #phone { height: 100vh; border-radius: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="phone">
+    <div id="screen">
+        <!-- Status Bar -->
+        <div id="status-bar">
+            <div class="left">
+                <div class="signal-bars">
+                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                </div>
+                <span style="font-size:12px;font-weight:bold">AT&amp;T</span>
+                <span class="wifi-icon">
+                    <svg width="12" height="10" viewBox="0 0 16 12" fill="white">
+                        <path d="M8 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM8 7c1.9 0 3.6.8 4.8 2l-1.4 1.4C10.4 9.5 9.2 9 8 9s-2.4.5-3.4 1.4L3.2 9C4.4 7.8 6.1 7 8 7zm0-4c3 0 5.7 1.2 7.6 3.2l-1.4 1.4C12.6 5.9 10.4 5 8 5S3.4 5.9 1.8 7.6L.4 6.2C2.3 4.2 5 3 8 3z" transform="translate(0,-2)"/>
+                    </svg>
+                </span>
+            </div>
+            <span id="status-time">9:41 AM</span>
+            <div class="right">
+                <div class="battery">
+                    <span>75%</span>
+                    <div class="battery-icon"><div class="battery-fill"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lock Screen -->
+        <div id="lock-screen">
+            <div id="lock-time">9:41</div>
+            <div id="lock-date">Monday, January 9</div>
+            <div id="slider-track">
+                <div id="slider-thumb">
+                    <svg viewBox="0 0 24 24" fill="#555"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+                <span id="slider-text">slide to unlock</span>
+            </div>
+        </div>
+
+        <!-- Home Screen -->
+        <div id="home-screen">
+            <div id="app-grid">
+                <!-- Row 1 -->
+                <div class="app-icon" onclick="openApp('calculator')">
+                    <div class="icon-img ic-orange">
+                        <svg viewBox="0 0 24 24" fill="#fff"><rect x="4" y="2" width="16" height="20" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><text x="12" y="15" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">+−</text></svg>
+                    </div>
+                    <span class="icon-label">Calculator</span>
+                </div>
+                <div class="app-icon" onclick="openApp('notes')">
+                    <div class="icon-img ic-yellow">
+                        <svg viewBox="0 0 24 24" fill="#fff"><rect x="4" y="2" width="16" height="20" rx="1" fill="#fffde7" stroke="#d4c098"/><line x1="7" y1="8" x2="17" y2="8" stroke="#c0a868" stroke-width=".7"/><line x1="7" y1="11" x2="17" y2="11" stroke="#c0a868" stroke-width=".7"/><line x1="7" y1="14" x2="14" y2="14" stroke="#c0a868" stroke-width=".7"/></svg>
+                    </div>
+                    <span class="icon-label">Notes</span>
+                </div>
+                <div class="app-icon" onclick="openApp('clock')">
+                    <div class="icon-img ic-gray">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                    </div>
+                    <span class="icon-label">Clock</span>
+                </div>
+                <div class="app-icon" onclick="openApp('weather')">
+                    <div class="icon-img ic-blue">
+                        <svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="10" r="4"/><path d="M12 2v2m0 12v2m-8-8h2m12 0h2M5.6 5.6l1.4 1.4m9.9 9.9l1.4 1.4M18.4 5.6l-1.4 1.4M7.1 17l-1.4 1.4"/></svg>
+                    </div>
+                    <span class="icon-label">Weather</span>
+                </div>
+                <!-- Row 2 -->
+                <div class="app-icon" onclick="openApp('settings')">
+                    <div class="icon-img ic-gray">
+                        <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 15.5A3.5 3.5 0 1012 8.5a3.5 3.5 0 000 7zm7.4-3.1l-1.2-.7c.1-.6.1-1.1 0-1.7l1.2-.7c.3-.2.4-.5.3-.8l-1-1.7c-.1-.3-.5-.4-.8-.3l-1.2.7c-.4-.4-.9-.7-1.5-.9V5c0-.3-.2-.6-.5-.6h-2c-.3 0-.5.3-.5.6v1.3c-.5.2-1 .5-1.5.9l-1.2-.7c-.3-.2-.6-.1-.8.3l-1 1.7c-.1.3 0 .6.3.8l1.2.7c-.1.5-.1 1.1 0 1.7l-1.2.7c-.3.2-.4.5-.3.8l1 1.7c.1.3.5.4.8.3l1.2-.7c.4.4.9.7 1.5.9V19c0 .3.2.6.5.6h2c.3 0 .5-.3.5-.6v-1.3c.5-.2 1-.5 1.5-.9l1.2.7c.3.2.6.1.8-.3l1-1.7c.1-.3 0-.6-.3-.8z"/></svg>
+                    </div>
+                    <span class="icon-label">Settings</span>
+                </div>
+                <div class="app-icon" onclick="openApp('photos')">
+                    <div class="icon-img ic-dkgreen">
+                        <svg viewBox="0 0 24 24" fill="#fff"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><circle cx="9" cy="10" r="2" fill="#fff"/><path d="M3 17l5-5 4 4 3-2 6 5H3z" fill="rgba(255,255,255,.6)"/></svg>
+                    </div>
+                    <span class="icon-label">Photos</span>
+                </div>
+                <div class="app-icon" onclick="openApp('calendar')">
+                    <div class="icon-img ic-white">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2" fill="#fff" stroke="#ccc"/><rect x="3" y="4" width="18" height="6" rx="2" fill="#ff3b30"/><text x="12" y="17" text-anchor="middle" font-size="9" fill="#333" font-weight="bold" id="cal-icon-day">1</text></svg>
+                    </div>
+                    <span class="icon-label">Calendar</span>
+                </div>
+                <div class="app-icon" onclick="openApp('maps')">
+                    <div class="icon-img ic-teal">
+                        <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5s2.5 1.1 2.5 2.5S13.4 11.5 12 11.5z"/></svg>
+                    </div>
+                    <span class="icon-label">Maps</span>
+                </div>
+                <!-- Row 3 -->
+                <div class="app-icon" onclick="openApp('demos')">
+                    <div class="icon-img ic-purple">
+                        <svg viewBox="0 0 24 24" fill="#fff"><rect x="3" y="4" width="18" height="14" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><line x1="12" y1="18" x2="12" y2="21" stroke="#fff" stroke-width="1.5"/><line x1="8" y1="21" x2="16" y2="21" stroke="#fff" stroke-width="1.5"/></svg>
+                    </div>
+                    <span class="icon-label">OS Demos</span>
+                </div>
+            </div>
+            <div id="page-dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div id="dock">
+                <div class="app-icon">
+                    <div class="icon-img ic-dkgreen">
+                        <svg viewBox="0 0 24 24" fill="#fff"><path d="M6.6 10.8c1.4 2.6 3.6 4.8 6.2 6.2l2.1-2.1c.3-.3.6-.3.9-.2 1 .3 2 .5 3.1.5.5 0 .9.4.9.9v3c0 .5-.4.9-.9.9C9.4 20 4 14.6 4 6.9c0-.5.4-.9.9-.9h3c.5 0 .9.4.9.9 0 1.1.2 2.1.5 3.1.1.3 0 .7-.2.9l-2.5 1.9z"/></svg>
+                    </div>
+                    <span class="icon-label">Phone</span>
+                </div>
+                <div class="app-icon">
+                    <div class="icon-img ic-blue">
+                        <svg viewBox="0 0 24 24" fill="#fff"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    </div>
+                    <span class="icon-label">Mail</span>
+                </div>
+                <div class="app-icon">
+                    <div class="icon-img ic-dkblue">
+                        <svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="9" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M12 6v1m0 10v1m-6-6h1m10 0h1" stroke="#fff" stroke-width="1.5"/><path d="M12 8c-2.2 0-4 1.8-4 4s1.8 4 4 4" stroke="#fff" stroke-width="1.5" fill="none"/></svg>
+                    </div>
+                    <span class="icon-label">Safari</span>
+                </div>
+                <div class="app-icon">
+                    <div class="icon-img ic-purple">
+                        <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3v10.55A4 4 0 1014 17V7h4V3h-6z"/></svg>
+                    </div>
+                    <span class="icon-label">iPod</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- App View Container -->
+        <div id="app-view">
+            <div class="app-titlebar">
+                <button class="app-back" onclick="closeApp()">‹ Back</button>
+                <h1 id="app-title">App</h1>
+            </div>
+            <div class="app-content" id="app-content"></div>
+        </div>
+    </div>
+
+    <div id="home-btn" onclick="goHome()"><div class="sq"></div></div>
+</div>
+
+<script>
+/* ===== CLOCK / STATUS BAR ===== */
+function updateTime() {
+    const now = new Date();
+    let h = now.getHours(), m = now.getMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    const timeStr = h + ':' + String(m).padStart(2, '0') + ' ' + ampm;
+    document.getElementById('status-time').textContent = timeStr;
+
+    const lockTime = document.getElementById('lock-time');
+    if (lockTime) lockTime.textContent = h + ':' + String(m).padStart(2, '0');
+
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const lockDate = document.getElementById('lock-date');
+    if (lockDate) lockDate.textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
+}
+updateTime();
+setInterval(updateTime, 1000);
+
+/* Set calendar icon day */
+const calIconDay = document.getElementById('cal-icon-day');
+if (calIconDay) calIconDay.textContent = new Date().getDate();
+
+/* ===== SLIDE TO UNLOCK ===== */
+(function() {
+    const thumb = document.getElementById('slider-thumb');
+    const track = document.getElementById('slider-track');
+    const lock = document.getElementById('lock-screen');
+    let dragging = false, startX = 0, thumbX = 0;
+    const maxX = 205;
+
+    function start(e) {
+        dragging = true;
+        startX = (e.touches ? e.touches[0].clientX : e.clientX) - thumbX;
+        e.preventDefault();
+    }
+    function move(e) {
+        if (!dragging) return;
+        const cx = (e.touches ? e.touches[0].clientX : e.clientX);
+        let x = cx - startX;
+        x = Math.max(0, Math.min(x, maxX));
+        thumbX = x;
+        thumb.style.transform = 'translateX(' + x + 'px)';
+        if (x >= maxX - 10) unlock();
+    }
+    function end() {
+        if (!dragging) return;
+        dragging = false;
+        if (thumbX < maxX - 10) {
+            thumbX = 0;
+            thumb.style.transform = 'translateX(0)';
+            thumb.style.transition = 'transform .3s';
+            setTimeout(function() { thumb.style.transition = ''; }, 300);
+        }
+    }
+    function unlock() {
+        dragging = false;
+        lock.classList.add('unlocked');
+    }
+
+    thumb.addEventListener('mousedown', start);
+    thumb.addEventListener('touchstart', start, { passive: false });
+    window.addEventListener('mousemove', move);
+    window.addEventListener('touchmove', move, { passive: false });
+    window.addEventListener('mouseup', end);
+    window.addEventListener('touchend', end);
+})();
+
+/* ===== APP MANAGEMENT ===== */
+let currentApp = null;
+
+function openApp(name) {
+    currentApp = name;
+    const view = document.getElementById('app-view');
+    const title = document.getElementById('app-title');
+    const content = document.getElementById('app-content');
+    view.classList.add('visible');
+    content.innerHTML = '';
+
+    switch (name) {
+        case 'calculator': title.textContent = 'Calculator'; renderCalculator(content); break;
+        case 'notes': title.textContent = 'Notes'; renderNotes(content); break;
+        case 'clock': title.textContent = 'Clock'; renderClock(content); break;
+        case 'weather': title.textContent = 'Weather'; renderWeather(content); break;
+        case 'settings': title.textContent = 'Settings'; renderSettings(content); break;
+        case 'photos': title.textContent = 'Photos'; renderPhotos(content); break;
+        case 'calendar': title.textContent = 'Calendar'; renderCalendar(content); break;
+        case 'maps': title.textContent = 'Maps'; renderMaps(content); break;
+        case 'demos': title.textContent = 'OS Demos'; renderDemos(content); break;
+    }
+}
+
+function closeApp() {
+    currentApp = null;
+    document.getElementById('app-view').classList.remove('visible');
+    if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
+}
+
+function goHome() {
+    const lock = document.getElementById('lock-screen');
+    if (!lock.classList.contains('unlocked')) return;
+    closeApp();
+}
+
+/* ===== CALCULATOR ===== */
+let calcDisplay = '0';
+
+function calcInput(value) {
+    const display = document.getElementById('calc-display');
+    if (calcDisplay === '0' && value !== '.') {
+        calcDisplay = value;
+    } else {
+        calcDisplay += value;
+    }
+    display.textContent = calcDisplay;
+}
+
+function calcClear() {
+    calcDisplay = '0';
+    document.getElementById('calc-display').textContent = '0';
+}
+
+function calcBackspace() {
+    calcDisplay = calcDisplay.slice(0, -1) || '0';
+    document.getElementById('calc-display').textContent = calcDisplay;
+}
+
+/* Safe arithmetic evaluator — no eval/Function */
+function safeCalcEval(expr) {
+    const tokens = [];
+    let i = 0;
+    while (i < expr.length) {
+        if (expr[i] === ' ') { i++; continue; }
+        if ('+-*/()'.indexOf(expr[i]) !== -1) {
+            tokens.push(expr[i]); i++; continue;
+        }
+        let num = '';
+        while (i < expr.length && (expr[i] >= '0' && expr[i] <= '9' || expr[i] === '.')) {
+            num += expr[i]; i++;
+        }
+        if (i < expr.length && expr[i] === 'e') {
+            num += expr[i]; i++;
+            if (i < expr.length && (expr[i] === '+' || expr[i] === '-')) { num += expr[i]; i++; }
+            while (i < expr.length && expr[i] >= '0' && expr[i] <= '9') { num += expr[i]; i++; }
+        }
+        if (num === '') throw new Error('Unexpected character');
+        tokens.push(parseFloat(num));
+    }
+    /* Recursive descent: expr -> term ((+|-) term)* */
+    let pos = 0;
+    function parseExpr() {
+        let left = parseTerm();
+        while (pos < tokens.length && (tokens[pos] === '+' || tokens[pos] === '-')) {
+            const op = tokens[pos++];
+            const right = parseTerm();
+            left = op === '+' ? left + right : left - right;
+        }
+        return left;
+    }
+    function parseTerm() {
+        let left = parseFactor();
+        while (pos < tokens.length && (tokens[pos] === '*' || tokens[pos] === '/')) {
+            const op = tokens[pos++];
+            const right = parseFactor();
+            left = op === '*' ? left * right : left / right;
+        }
+        return left;
+    }
+    function parseFactor() {
+        if (tokens[pos] === '(') {
+            pos++;
+            const val = parseExpr();
+            if (tokens[pos] === ')') pos++;
+            return val;
+        }
+        if (tokens[pos] === '-') { pos++; return -parseFactor(); }
+        if (typeof tokens[pos] === 'number') return tokens[pos++];
+        throw new Error('Unexpected token');
+    }
+    const result = parseExpr();
+    if (pos < tokens.length) throw new Error('Unexpected token');
+    return result;
+}
+
+function calcEquals() {
+    const display = document.getElementById('calc-display');
+    try {
+        const expr = calcDisplay
+            .replace(/×/g, '*')
+            .replace(/÷/g, '/')
+            .replace(/−/g, '-')
+            .replace(/%/g, '/100');
+        const result = safeCalcEval(expr);
+        calcDisplay = String(result);
+        display.textContent = calcDisplay;
+    } catch (e) {
+        calcDisplay = 'Error';
+        display.textContent = 'Error';
+        setTimeout(function() { calcDisplay = '0'; display.textContent = '0'; }, 1500);
+    }
+}
+
+function renderCalculator(container) {
+    calcDisplay = '0';
+    container.innerHTML =
+        '<div class="calc-container">' +
+            '<div class="calc-display" id="calc-display">0</div>' +
+            '<div class="calc-buttons">' +
+                '<div class="calc-btn fn" onclick="calcClear()">C</div>' +
+                '<div class="calc-btn fn" onclick="calcBackspace()">⌫</div>' +
+                '<div class="calc-btn fn" onclick="calcInput(\'%\')">%</div>' +
+                '<div class="calc-btn op" onclick="calcInput(\'÷\')">÷</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'7\')">7</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'8\')">8</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'9\')">9</div>' +
+                '<div class="calc-btn op" onclick="calcInput(\'×\')">×</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'4\')">4</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'5\')">5</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'6\')">6</div>' +
+                '<div class="calc-btn op" onclick="calcInput(\'−\')">−</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'1\')">1</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'2\')">2</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'3\')">3</div>' +
+                '<div class="calc-btn op" onclick="calcInput(\'+\')">+</div>' +
+                '<div class="calc-btn zero" onclick="calcInput(\'0\')">0</div>' +
+                '<div class="calc-btn" onclick="calcInput(\'.\')">.</div>' +
+                '<div class="calc-btn op" onclick="calcEquals()">=</div>' +
+            '</div>' +
+        '</div>';
+}
+
+/* ===== NOTES ===== */
+function saveNotepad() {
+    const textarea = document.getElementById('notes-textarea');
+    const blob = new Blob([textarea.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'note.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function clearNotepad() {
+    if (confirm('Clear all content?')) {
+        document.getElementById('notes-textarea').value = '';
+    }
+}
+
+function copyNotepad() {
+    const textarea = document.getElementById('notes-textarea');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textarea.value).catch(() => {});
+    } else {
+        try { textarea.select(); document.execCommand('copy'); } catch (e) { /* ignore */ }
+    }
+}
+
+function renderNotes(container) {
+    container.innerHTML =
+        '<div class="notes-container">' +
+            '<div class="notes-toolbar">' +
+                '<button onclick="saveNotepad()">Save</button>' +
+                '<button onclick="clearNotepad()">Clear</button>' +
+                '<button onclick="copyNotepad()">Copy</button>' +
+            '</div>' +
+            '<textarea class="notes-textarea" id="notes-textarea" placeholder="Write your note here..."></textarea>' +
+        '</div>';
+}
+
+/* ===== CLOCK ===== */
+let clockInterval = null;
+
+function renderClock(container) {
+    let marks = '';
+    for (let i = 0; i < 12; i++) {
+        marks += '<div class="clock-mark major" style="transform:rotate(' + (i * 30) + 'deg)"></div>';
+    }
+    for (let j = 0; j < 60; j++) {
+        if (j % 5 !== 0) marks += '<div class="clock-mark" style="transform:rotate(' + (j * 6) + 'deg)"></div>';
+    }
+
+    container.innerHTML =
+        '<div class="clock-container">' +
+            '<div class="analog-clock">' +
+                '<div class="clock-face">' + marks + '</div>' +
+                '<div class="clock-hand hand-hour" id="clock-hour"></div>' +
+                '<div class="clock-hand hand-minute" id="clock-min"></div>' +
+                '<div class="clock-hand hand-second" id="clock-sec"></div>' +
+                '<div class="clock-center"></div>' +
+            '</div>' +
+            '<div class="digital-time" id="clock-digital">00:00:00</div>' +
+            '<div class="digital-date" id="clock-date-display"></div>' +
+        '</div>';
+
+    function tick() {
+        const now = new Date();
+        const h = now.getHours() % 12, m = now.getMinutes(), s = now.getSeconds();
+        const hDeg = h * 30 + m * 0.5;
+        const mDeg = m * 6 + s * 0.1;
+        const sDeg = s * 6;
+        const hourEl = document.getElementById('clock-hour');
+        const minEl = document.getElementById('clock-min');
+        const secEl = document.getElementById('clock-sec');
+        if (hourEl) hourEl.style.transform = 'rotate(' + hDeg + 'deg)';
+        if (minEl) minEl.style.transform = 'rotate(' + mDeg + 'deg)';
+        if (secEl) secEl.style.transform = 'rotate(' + sDeg + 'deg)';
+
+        const dig = document.getElementById('clock-digital');
+        if (dig) dig.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+
+        const dd = document.getElementById('clock-date-display');
+        if (dd) {
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            dd.textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+        }
+    }
+    tick();
+    if (clockInterval) clearInterval(clockInterval);
+    clockInterval = setInterval(tick, 1000);
+}
+
+/* ===== WEATHER ===== */
+function renderWeather(container) {
+    container.innerHTML =
+        '<div class="weather-container">' +
+            '<div class="weather-city">Cupertino</div>' +
+            '<div class="weather-temp">72°</div>' +
+            '<div class="weather-desc">Sunny</div>' +
+            '<div class="weather-sun">' +
+                '<svg width="64" height="64" viewBox="0 0 64 64">' +
+                    '<circle cx="32" cy="32" r="14" fill="#ffd54f"/>' +
+                    '<g stroke="#ffd54f" stroke-width="3" stroke-linecap="round">' +
+                        '<line x1="32" y1="4" x2="32" y2="12"/>' +
+                        '<line x1="32" y1="52" x2="32" y2="60"/>' +
+                        '<line x1="4" y1="32" x2="12" y2="32"/>' +
+                        '<line x1="52" y1="32" x2="60" y2="32"/>' +
+                        '<line x1="12.2" y1="12.2" x2="17.9" y2="17.9"/>' +
+                        '<line x1="46.1" y1="46.1" x2="51.8" y2="51.8"/>' +
+                        '<line x1="12.2" y1="51.8" x2="17.9" y2="46.1"/>' +
+                        '<line x1="46.1" y1="17.9" x2="51.8" y2="12.2"/>' +
+                    '</g>' +
+                '</svg>' +
+            '</div>' +
+            '<div class="weather-details">' +
+                '<div>Humidity<div class="val">45%</div></div>' +
+                '<div>Wind<div class="val">8 mph</div></div>' +
+                '<div>H / L<div class="val">78° / 62°</div></div>' +
+            '</div>' +
+        '</div>';
+}
+
+/* ===== SETTINGS ===== */
+const settingsState = { wifi: true, bluetooth: false, airplane: false };
+
+function toggleSetting(key) {
+    settingsState[key] = !settingsState[key];
+    const el = document.getElementById('toggle-' + key);
+    if (el) el.classList.toggle('on', settingsState[key]);
+}
+
+function renderSettings(container) {
+    container.innerHTML =
+        '<div class="settings-container">' +
+            '<div class="settings-group">' +
+                '<div class="settings-row">' +
+                    '<div class="label"><div class="sicon" style="background:#ff9500">✈</div>Airplane Mode</div>' +
+                    '<div class="toggle ' + (settingsState.airplane ? 'on' : '') + '" id="toggle-airplane" onclick="toggleSetting(\'airplane\')"></div>' +
+                '</div>' +
+                '<div class="settings-row">' +
+                    '<div class="label"><div class="sicon" style="background:#007aff">W</div>Wi-Fi</div>' +
+                    '<div class="toggle ' + (settingsState.wifi ? 'on' : '') + '" id="toggle-wifi" onclick="toggleSetting(\'wifi\')"></div>' +
+                '</div>' +
+                '<div class="settings-row">' +
+                    '<div class="label"><div class="sicon" style="background:#007aff">B</div>Bluetooth</div>' +
+                    '<div class="toggle ' + (settingsState.bluetooth ? 'on' : '') + '" id="toggle-bluetooth" onclick="toggleSetting(\'bluetooth\')"></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="settings-group">' +
+                '<div class="settings-row" onclick="openApp(\'demos\')">' +
+                    '<div class="label"><div class="sicon" style="background:#8e44ad">🖥</div>Other OS Demos</div>' +
+                    '<span class="arrow">›</span>' +
+                '</div>' +
+            '</div>' +
+            '<div class="settings-group">' +
+                '<div class="settings-row">' +
+                    '<div class="label"><div class="sicon" style="background:#4cd964">G</div>General</div>' +
+                    '<span class="arrow">›</span>' +
+                '</div>' +
+                '<div class="settings-row">' +
+                    '<div class="label"><div class="sicon" style="background:#5ac8fa">S</div>Sounds</div>' +
+                    '<span class="arrow">›</span>' +
+                '</div>' +
+                '<div class="settings-row">' +
+                    '<div class="label"><div class="sicon" style="background:#ff3b30">W</div>Wallpaper</div>' +
+                    '<span class="arrow">›</span>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+}
+
+/* ===== PHOTOS ===== */
+function renderPhotos(container) {
+    const colors = ['#e57373','#81c784','#64b5f6','#ffb74d','#ce93d8','#4dd0e1','#fff176','#a1887f','#90a4ae'];
+    let html = '<div class="photos-container">';
+    for (let i = 0; i < 9; i++) {
+        html += '<div class="photo-thumb" style="background:' + colors[i] + '">Photo ' + (i + 1) + '</div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+/* ===== CALENDAR ===== */
+function renderCalendar(container) {
+    const now = new Date();
+    const year = now.getFullYear(), month = now.getMonth();
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const first = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = now.getDate();
+
+    let html = '<div class="calendar-container">' +
+        '<div class="cal-header">' + months[month] + ' ' + year + '</div>' +
+        '<div class="cal-grid">';
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    for (let d = 0; d < 7; d++) html += '<div class="cal-day-name">' + dayNames[d] + '</div>';
+    for (let e = 0; e < first; e++) html += '<div class="cal-day empty"></div>';
+    for (let i = 1; i <= daysInMonth; i++) {
+        const cls = i === today ? 'cal-day today' : 'cal-day';
+        html += '<div class="' + cls + '">' + i + '</div>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+/* ===== MAPS ===== */
+function renderMaps(container) {
+    container.innerHTML =
+        '<div class="maps-container">' +
+            '<div class="maps-grid"></div>' +
+            '<div class="maps-roads">' +
+                '<div class="maps-road h" style="top:35%"></div>' +
+                '<div class="maps-road h" style="top:65%"></div>' +
+                '<div class="maps-road v" style="left:30%"></div>' +
+                '<div class="maps-road v" style="left:60%"></div>' +
+                '<div class="maps-road v" style="left:85%"></div>' +
+                '<div class="maps-road h" style="top:48%"></div>' +
+            '</div>' +
+            '<div class="maps-pin">' +
+                '<div class="maps-pin-head"></div>' +
+                '<div class="maps-pin-label">You are here</div>' +
+            '</div>' +
+        '</div>';
+}
+
+/* ===== OS DEMOS ===== */
+function renderDemos(container) {
+    container.innerHTML =
+        '<div class="demos-container">' +
+            '<div class="settings-group" style="margin-top:16px">' +
+                '<div class="settings-group-title">Other Operating System Demos</div>' +
+            '</div>' +
+            '<a href="index.html" class="demo-link">' +
+                '<div class="dl-icon" style="background:linear-gradient(135deg,#0078d4,#00bcf2)">W</div>' +
+                '<span>Windows Demo</span>' +
+                '<span class="arrow">›</span>' +
+            '</a>' +
+            '<a href="beos.html" class="demo-link">' +
+                '<div class="dl-icon" style="background:linear-gradient(135deg,#2196f3,#64b5f6)">Be</div>' +
+                '<span>BeOS Demo</span>' +
+                '<span class="arrow">›</span>' +
+            '</a>' +
+            '<a href="metro.html" class="demo-link">' +
+                '<div class="dl-icon" style="background:linear-gradient(135deg,#9b59b6,#c39dff)">M</div>' +
+                '<span>Windows 8 Metro Demo</span>' +
+                '<span class="arrow">›</span>' +
+            '</a>' +
+        '</div>';
+}
+</script>
+</body>
+</html>

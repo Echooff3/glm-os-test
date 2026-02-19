@@ -80,6 +80,10 @@
             background: linear-gradient(180deg, #0078d4 0%, #005a9e 100%);
         }
 
+        .desktop-icon.os-link.iphone .icon {
+            background: linear-gradient(180deg, #1a1a1a 0%, #333 100%);
+        }
+
         .desktop-icon.os-link:hover {
             background: rgba(255, 255, 255, 0.5);
             transform: scale(1.05);
@@ -1719,6 +1723,12 @@
                         <rect fill="#fff" x="26" y="10" width="12" height="12"/>
                         <rect fill="#fff" x="10" y="26" width="12" height="12"/>
                         <rect fill="#fff" x="26" y="26" width="12" height="12"/>
+                    </svg>`,
+                    iphone: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:32px;height:32px;">
+                        <rect fill="#1a1a1a" x="12" y="2" width="24" height="44" rx="6"/>
+                        <rect fill="#333" x="14" y="8" width="20" height="30" rx="1"/>
+                        <circle fill="#444" cx="24" cy="42" r="3" stroke="#555" stroke-width="0.5"/>
+                        <rect fill="#555" x="20" y="4" width="8" height="1.5" rx="0.75"/>
                     </svg>`
                 };
 
@@ -1738,6 +1748,14 @@
                         className: 'metro',
                         x: window.innerWidth - ICON_OFFSET_FROM_RIGHT,
                         y: 120
+                    },
+                    {
+                        name: 'iPhone OS',
+                        url: 'iphone.html',
+                        icon: OS_ICONS.iphone,
+                        className: 'iphone',
+                        x: window.innerWidth - ICON_OFFSET_FROM_RIGHT,
+                        y: 220
                     }
                 ];
 
