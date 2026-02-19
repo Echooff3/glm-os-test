@@ -7,6 +7,8 @@ A collection of interactive web-based operating system demos showcasing differen
 - **Windows Demo**: [https://echooff3.github.io/glm-os-test/](https://echooff3.github.io/glm-os-test/)
 - **Windows 8 Metro**: [https://echooff3.github.io/glm-os-test/metro.html](https://echooff3.github.io/glm-os-test/metro.html)
 - **BeOS Demo**: [https://echooff3.github.io/glm-os-test/beos.html](https://echooff3.github.io/glm-os-test/beos.html)
+- **iPhone OS Demo**: [https://echooff3.github.io/glm-os-test/iphone.html](https://echooff3.github.io/glm-os-test/iphone.html)
+- **Android Marshmallow Demo**: [https://echooff3.github.io/glm-os-test/android.html](https://echooff3.github.io/glm-os-test/android.html)
 
 ## Features
 
@@ -14,9 +16,11 @@ A collection of interactive web-based operating system demos showcasing differen
 
 Each operating system demo now includes **desktop icons or tiles** that allow you to navigate between different OS demos:
 
-- **Windows Demo** (`index.html`): Look for the **BeOS Demo** and **Windows 8 Metro** icons in the top-right corner of the desktop
-- **BeOS Demo** (`beos.html`): Look for the **Windows Demo** and **Windows 8 Metro** icons in the top-right corner of the desktop
-- **Windows 8 Metro** (`metro.html`): Scroll down to the **"Try Other OS Demos"** section with tiles for **Windows Demo** and **BeOS Demo**
+- **Windows Demo** (`index.html`): Look for the **BeOS Demo**, **Windows 8 Metro**, **iPhone OS**, and **Android** icons in the top-right corner of the desktop
+- **BeOS Demo** (`beos.html`): Look for the **Windows Demo**, **Windows 8 Metro**, **iPhone OS**, and **Android** icons in the top-right corner of the desktop
+- **Windows 8 Metro** (`metro.html`): Scroll down to the **"Try Other OS Demos"** section with tiles for **Windows Demo**, **BeOS Demo**, **iPhone OS Demo**, and **Android Demo**
+- **iPhone OS Demo** (`iphone.html`): Open the **OS Demos** app to find links to all other demos
+- **Android Marshmallow Demo** (`android.html`): Open the **OS Demos** app to find links to all other demos
 
 Simply **double-click** the desktop icons (Windows/BeOS) or **click** the tiles (Metro) to navigate between demos.
 
@@ -78,6 +82,7 @@ CSS classes for OS navigation icons:
 - `.desktop-icon.os-link.beos` - BeOS-specific icon styling
 - `.desktop-icon.os-link.metro` - Metro-specific icon styling
 - `.desktop-icon.os-link.windows` - Windows-specific icon styling
+- `.desktop-icon.os-link.android` - Android-specific icon styling
 - `.os-demo-tile` - Metro tile styling for OS demos
 
 ## Contributing
