@@ -9,6 +9,7 @@ A collection of interactive web-based operating system demos showcasing differen
 - **BeOS Demo**: [https://echooff3.github.io/glm-os-test/beos.html](https://echooff3.github.io/glm-os-test/beos.html)
 - **iPhone OS Demo**: [https://echooff3.github.io/glm-os-test/iphone.html](https://echooff3.github.io/glm-os-test/iphone.html)
 - **Android Marshmallow Demo**: [https://echooff3.github.io/glm-os-test/android.html](https://echooff3.github.io/glm-os-test/android.html)
+- **Amiga Desktop Demo**: [https://echooff3.github.io/glm-os-test/amiga.html](https://echooff3.github.io/glm-os-test/amiga.html)
 
 ## Features
 
