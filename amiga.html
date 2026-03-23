@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amiga Workbench Demo</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: "Topaz Plus", "Courier New", monospace;
+    background: #0055aa;
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+}
+#menu-bar {
+    height: 30px;
+    background: linear-gradient(180deg, #d9d9d9 0%, #bdbdbd 100%);
+    border-bottom: 2px solid #8f8f8f;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    font-size: 14px;
+}
+#desktop {
+    position: relative;
+    height: calc(100vh - 30px);
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,.12) 0%, transparent 40%),
+      radial-gradient(circle at 80% 75%, rgba(255,255,255,.08) 0%, transparent 45%),
+      linear-gradient(135deg, #0055aa 0%, #003d7a 100%);
+}
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 120px);
+    gap: 22px;
+    padding: 26px;
+}
+.desktop-icon {
+    text-decoration: none;
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background .15s ease;
+}
+.desktop-icon:hover { background: rgba(255,255,255,.18); }
+.icon {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 7px;
+    border: 2px solid #e7e7e7;
+    border-right-color: #6d6d6d;
+    border-bottom-color: #6d6d6d;
+    border-radius: 4px;
+    background: linear-gradient(180deg,#f7931e,#db6a0a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+}
+.label {
+    font-size: 12px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.55);
+}
+#window {
+    position: absolute;
+    right: 40px;
+    top: 50px;
+    width: min(560px, calc(100vw - 90px));
+    background: #d5d5d5;
+    border: 2px solid #f2f2f2;
+    border-right-color: #737373;
+    border-bottom-color: #737373;
+    color: #111;
+}
+.window-title {
+    background: linear-gradient(180deg, #1f3f9f 0%, #14337f 100%);
+    color: #fff;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-weight: bold;
+}
+.window-content {
+    padding: 14px;
+    line-height: 1.5;
+    font-size: 13px;
+}
+.window-content ul { margin-top: 8px; padding-left: 18px; }
+</style>
+</head>
+<body>
+<div id="menu-bar">
+    <div>🟧 Amiga Workbench 3.1 (Demo)</div>
+    <div id="clock"></div>
+</div>
+<div id="desktop">
+    <div class="icon-grid">
+        <a class="desktop-icon" href="index.html"><div class="icon">W</div><div class="label">Windows Demo</div></a>
+        <a class="desktop-icon" href="beos.html"><div class="icon">Be</div><div class="label">BeOS Demo</div></a>
+        <a class="desktop-icon" href="metro.html"><div class="icon">M</div><div class="label">Metro Demo</div></a>
+        <a class="desktop-icon" href="iphone.html"><div class="icon">i</div><div class="label">iPhone OS</div></a>
+        <a class="desktop-icon" href="android.html"><div class="icon">A</div><div class="label">Android</div></a>
+    </div>
+
+    <div id="window">
+        <div class="window-title">Welcome to the Amiga Desktop Demo</div>
+        <div class="window-content">
+            This retro desktop is inspired by classic Amiga Workbench styling.
+            <ul>
+                <li>Use the desktop icons to jump to any other OS demo.</li>
+                <li>All existing demos now include links back to this Amiga desktop.</li>
+                <li>Enjoy a quick nostalgia trip with modern browser interactions.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script>
+function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+</body>
+</html>
