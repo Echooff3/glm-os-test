@@ -542,6 +542,25 @@ body::before {
 }
 .settings-item .si-toggle.on::after { transform: translateX(16px); background: #009688; }
 
+/* ===== TOAST ===== */
+#android-toast {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(50,50,50,.9);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-size: 13px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s;
+    z-index: 200;
+}
+#android-toast.show { opacity: 1; }
+
 /* ===== CALCULATOR ===== */
 .calc-display {
     background: #263238;
@@ -728,6 +747,9 @@ body::before {
             </div>
             <div class="app-content" id="app-content"></div>
         </div>
+
+        <!-- Toast -->
+        <div id="android-toast"></div>
 
         <!-- Navigation Bar -->
         <div id="nav-bar">
@@ -984,6 +1006,17 @@ function toggleQs(key) {
 }
 
 /* ===== SETTINGS APP ===== */
+var devTapCount = 0;
+var devToastTimer = null;
+
+function showToast(msg) {
+    var t = document.getElementById('android-toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(devToastTimer);
+    devToastTimer = setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
 function renderSettings(container) {
     container.innerHTML =
         '<div class="settings-list">' +
@@ -998,8 +1031,40 @@ function renderSettings(container) {
             settingsItem('👤', 'Users', 'Owner', false) +
             settingsItem('📍', 'Location', 'On', true, true) +
             settingsItem('🔒', 'Security', 'Screen lock: Swipe', false) +
-            settingsItem('ℹ️', 'About phone', 'Android 6.0 Marshmallow', false) +
+            '<div class="settings-item" onclick="openAboutPhone()">' +
+                '<div class="si-icon">ℹ️</div>' +
+                '<div class="si-text"><div class="si-title">About phone</div><div class="si-sub">Android 6.0 Marshmallow</div></div>' +
+            '</div>' +
         '</div>';
+}
+
+function openAboutPhone() {
+    var title = document.getElementById('app-title');
+    var content = document.getElementById('app-content');
+    title.textContent = 'About phone';
+    devTapCount = 0;
+    content.innerHTML =
+        '<div class="settings-list">' +
+            settingsItem('', 'Device name', 'Android Device', false) +
+            settingsItem('', 'Model number', 'Nexus 5X', false) +
+            '<div class="settings-item" id="android-version-item">' +
+                '<div class="si-icon"></div>' +
+                '<div class="si-text"><div class="si-title">Android version</div><div class="si-sub">6.0 Marshmallow</div></div>' +
+            '</div>' +
+            settingsItem('', 'Baseband version', '1.0', false) +
+            settingsItem('', 'Kernel version', '3.10.73', false) +
+            settingsItem('', 'Build number', 'MRA58N', false) +
+        '</div>';
+    document.getElementById('android-version-item').addEventListener('click', function() {
+        devTapCount++;
+        if (devTapCount >= 10) {
+            showToast('You are now a developer!');
+            devTapCount = 0;
+        } else if (devTapCount >= 7) {
+            var r = 10 - devTapCount;
+            showToast('You are ' + r + ' step' + (r > 1 ? 's' : '') + ' away from being a developer.');
+        }
+    });
 }
 
 function settingsItem(icon, title, sub, hasToggle, toggleOn) {
