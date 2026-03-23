@@ -34,7 +34,7 @@ body {
 }
 .icon-grid {
     display: grid;
-    grid-template-columns: repeat(3, 120px);
+    grid-template-columns: repeat(4, 120px);
     gap: 22px;
     padding: 26px;
 }
@@ -45,6 +45,7 @@ body {
     padding: 8px;
     border-radius: 4px;
     transition: background .15s ease;
+    cursor: pointer;
 }
 .desktop-icon:hover { background: rgba(255,255,255,.18); }
 .icon {
@@ -66,16 +67,19 @@ body {
     font-size: 12px;
     text-shadow: 1px 1px 0 rgba(0,0,0,.55);
 }
-#window {
+.amiga-window {
     position: absolute;
-    right: 40px;
-    top: 50px;
-    width: min(560px, calc(100vw - 90px));
+    min-width: 280px;
+    min-height: 220px;
     background: #d5d5d5;
     border: 2px solid #f2f2f2;
     border-right-color: #737373;
     border-bottom-color: #737373;
     color: #111;
+    box-shadow: 6px 6px 0 rgba(0,0,0,.28);
+}
+.amiga-window.active {
+    box-shadow: 8px 8px 0 rgba(0,0,0,.36);
 }
 .window-title {
     background: linear-gradient(180deg, #1f3f9f 0%, #14337f 100%);
@@ -83,13 +87,117 @@ body {
     padding: 7px 10px;
     font-size: 13px;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: move;
+    user-select: none;
+}
+.window-controls {
+    display: flex;
+    gap: 6px;
+}
+.window-btn {
+    width: 18px;
+    height: 18px;
+    border: 1px solid #fff;
+    border-right-color: #222;
+    border-bottom-color: #222;
+    background: #c9c9c9;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .window-content {
-    padding: 14px;
-    line-height: 1.5;
+    height: calc(100% - 34px);
+    overflow: auto;
+    padding: 12px;
     font-size: 13px;
+    line-height: 1.45;
+    background: #efefef;
 }
-.window-content ul { margin-top: 8px; padding-left: 18px; }
+.file-list { list-style: none; padding-left: 0; }
+.file-list li {
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    background: #fff;
+    border: 1px solid #bdbdbd;
+    display: flex;
+    justify-content: space-between;
+}
+.notepad-toolbar,
+.paint-toolbar,
+.calc-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+.notepad-toolbar button,
+.paint-toolbar button,
+.calc-toolbar button,
+.paint-toolbar input,
+.paint-toolbar select {
+    border: 1px solid #fff;
+    border-right-color: #555;
+    border-bottom-color: #555;
+    background: #d5d5d5;
+    padding: 4px 8px;
+    font-family: inherit;
+    font-size: 12px;
+}
+.notepad-editor {
+    width: 100%;
+    height: 240px;
+    resize: none;
+    border: 2px inset #c4c4c4;
+    background: #fff;
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    padding: 8px;
+}
+.paint-wrap {
+    border: 2px inset #c4c4c4;
+    background: #fff;
+    padding: 8px;
+}
+#paint-canvas {
+    display: block;
+    border: 1px solid #999;
+    background: #fff;
+    cursor: crosshair;
+}
+.calc-display {
+    width: 100%;
+    background: #1f1f1f;
+    color: #4dff4d;
+    border: 2px inset #bcbcbc;
+    padding: 10px;
+    font-size: 25px;
+    text-align: right;
+    margin-bottom: 10px;
+    min-height: 52px;
+}
+.calc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+.calc-grid button {
+    padding: 10px;
+    border: 1px solid #fff;
+    border-right-color: #444;
+    border-bottom-color: #444;
+    background: #d5d5d5;
+    font-size: 16px;
+    cursor: pointer;
+}
+.calc-grid button.equals { background: #77c16f; }
+.calc-grid button.operator { background: #a8c4ff; }
+
+#welcome-window { right: 40px; top: 50px; width: min(560px, calc(100vw - 90px)); height: 300px; }
 </style>
 </head>
 <body>
@@ -104,25 +212,261 @@ body {
         <a class="desktop-icon" href="metro.html"><div class="icon">M</div><div class="label">Metro Demo</div></a>
         <a class="desktop-icon" href="iphone.html"><div class="icon">i</div><div class="label">iPhone OS</div></a>
         <a class="desktop-icon" href="android.html"><div class="icon">A</div><div class="label">Android</div></a>
+        <div class="desktop-icon" data-app="explorer"><div class="icon">📁</div><div class="label">Explorer</div></div>
+        <div class="desktop-icon" data-app="notepad"><div class="icon">📝</div><div class="label">Notepad</div></div>
+        <div class="desktop-icon" data-app="paint"><div class="icon">🎨</div><div class="label">Paint</div></div>
+        <div class="desktop-icon" data-app="calculator"><div class="icon">🧮</div><div class="label">Calculator</div></div>
     </div>
 
-    <div id="window">
-        <div class="window-title">Welcome to the Amiga Desktop Demo</div>
+    <div id="welcome-window" class="amiga-window">
+        <div class="window-title">
+            <span>Welcome to the Amiga Desktop Demo</span>
+            <div class="window-controls"><button class="window-btn" onclick="closeWindow(this)">×</button></div>
+        </div>
         <div class="window-content">
             This retro desktop is inspired by classic Amiga Workbench styling.
-            <ul>
-                <li>Use the desktop icons to jump to any other OS demo.</li>
-                <li>All existing demos now include links back to this Amiga desktop.</li>
-                <li>Enjoy a quick nostalgia trip with modern browser interactions.</li>
+            <ul style="margin-top:8px; padding-left:18px;">
+                <li>Open Explorer, Notepad, Paint, and Calculator from the desktop.</li>
+                <li>Each app uses the same behavior style as the Windows demo app set.</li>
+                <li>You can drag app windows around like old-school Workbench tools.</li>
             </ul>
         </div>
     </div>
 </div>
 <script>
+let zIndex = 30;
+let calcExpression = '0';
+let paintState = { tool: 'brush', color: '#000000', size: 4, drawing: false, lastX: 0, lastY: 0 };
+
+const appTemplates = {
+    explorer: () => `
+        <div class="window-content">
+            <div class="calc-toolbar">
+                <button onclick="openAppWindow('notepad')">New Text File</button>
+                <button onclick="openAppWindow('paint')">Open Paint</button>
+                <button onclick="openAppWindow('calculator')">Open Calc</button>
+            </div>
+            <ul class="file-list">
+                <li><span>📄 startup-sequence.txt</span><span>2 KB</span></li>
+                <li><span>📄 readme.guide</span><span>4 KB</span></li>
+                <li><span>🖼️ amiga-logo.iff</span><span>39 KB</span></li>
+                <li><span>🎵 workbench-theme.mod</span><span>281 KB</span></li>
+                <li><span>📁 games</span><span>DIR</span></li>
+            </ul>
+        </div>
+    `,
+    notepad: () => `
+        <div class="window-content">
+            <div class="notepad-toolbar">
+                <button onclick="fillSampleText(this)">Sample</button>
+                <button onclick="clearNote(this)">Clear</button>
+            </div>
+            <textarea class="notepad-editor" placeholder="Type notes here...\n">Amiga Workbench Notes\n- Check Explorer files\n- Sketch icon ideas in Paint\n- Use Calculator for quick math</textarea>
+        </div>
+    `,
+    paint: () => `
+        <div class="window-content">
+            <div class="paint-toolbar">
+                <select onchange="setPaintTool(this.value)">
+                    <option value="brush">Brush</option>
+                    <option value="eraser">Eraser</option>
+                </select>
+                <input type="color" value="#000000" onchange="setPaintColor(this.value)">
+                <input type="range" min="1" max="30" value="4" onchange="setPaintSize(this.value)">
+                <button onclick="clearPaint()">Clear</button>
+            </div>
+            <div class="paint-wrap">
+                <canvas id="paint-canvas" width="500" height="280"></canvas>
+            </div>
+        </div>
+    `,
+    calculator: () => `
+        <div class="window-content">
+            <div class="calc-display" id="calc-display">0</div>
+            <div class="calc-grid">
+                <button onclick="calcClear()">C</button>
+                <button class="operator" onclick="calcInput('/')">÷</button>
+                <button class="operator" onclick="calcInput('*')">×</button>
+                <button onclick="calcBackspace()">⌫</button>
+                <button onclick="calcInput('7')">7</button>
+                <button onclick="calcInput('8')">8</button>
+                <button onclick="calcInput('9')">9</button>
+                <button class="operator" onclick="calcInput('-')">−</button>
+                <button onclick="calcInput('4')">4</button>
+                <button onclick="calcInput('5')">5</button>
+                <button onclick="calcInput('6')">6</button>
+                <button class="operator" onclick="calcInput('+')">+</button>
+                <button onclick="calcInput('1')">1</button>
+                <button onclick="calcInput('2')">2</button>
+                <button onclick="calcInput('3')">3</button>
+                <button class="equals" onclick="calcEquals()">=</button>
+                <button style="grid-column: span 2;" onclick="calcInput('0')">0</button>
+                <button onclick="calcInput('.')">.</button>
+            </div>
+        </div>
+    `
+};
+
+const appMeta = {
+    explorer: { title: 'Amiga Explorer', width: 500, height: 360 },
+    notepad: { title: 'Amiga Notepad', width: 550, height: 400 },
+    paint: { title: 'Amiga Paint', width: 580, height: 420 },
+    calculator: { title: 'Amiga Calculator', width: 340, height: 430 }
+};
+
 function updateClock() {
     const now = new Date();
     document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
+
+function closeWindow(btn) {
+    btn.closest('.amiga-window')?.remove();
+}
+
+function openAppWindow(appId) {
+    const meta = appMeta[appId];
+    if (!meta) return;
+
+    const win = document.createElement('div');
+    win.className = 'amiga-window active';
+    win.style.width = `${meta.width}px`;
+    win.style.height = `${meta.height}px`;
+    win.style.left = `${110 + Math.random() * 240}px`;
+    win.style.top = `${70 + Math.random() * 140}px`;
+    win.style.zIndex = ++zIndex;
+
+    win.innerHTML = `
+        <div class="window-title">
+            <span>${meta.title}</span>
+            <div class="window-controls"><button class="window-btn" onclick="closeWindow(this)">×</button></div>
+        </div>
+        ${appTemplates[appId]()}
+    `;
+
+    document.getElementById('desktop').appendChild(win);
+    makeWindowDraggable(win);
+
+    if (appId === 'paint') {
+        initPaint(win.querySelector('#paint-canvas'));
+    }
+}
+
+function makeWindowDraggable(win) {
+    const title = win.querySelector('.window-title');
+    let offsetX = 0;
+    let offsetY = 0;
+    let dragging = false;
+
+    win.addEventListener('mousedown', () => {
+        document.querySelectorAll('.amiga-window').forEach(w => w.classList.remove('active'));
+        win.classList.add('active');
+        win.style.zIndex = ++zIndex;
+    });
+
+    title.addEventListener('mousedown', (event) => {
+        dragging = true;
+        const rect = win.getBoundingClientRect();
+        offsetX = event.clientX - rect.left;
+        offsetY = event.clientY - rect.top;
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (!dragging) return;
+        win.style.left = `${Math.max(0, event.clientX - offsetX)}px`;
+        win.style.top = `${Math.max(30, event.clientY - offsetY)}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        dragging = false;
+    });
+}
+
+function fillSampleText(button) {
+    const editor = button.closest('.window-content').querySelector('.notepad-editor');
+    editor.value = `Amiga Memo\n\nToday:\n- Explorer reviewed\n- Paint sketch done\n- Calculator verified\n\nEnd of note.`;
+}
+
+function clearNote(button) {
+    const editor = button.closest('.window-content').querySelector('.notepad-editor');
+    editor.value = '';
+}
+
+function calcInput(value) {
+    if (calcExpression === '0' && value !== '.') calcExpression = value;
+    else calcExpression += value;
+    document.getElementById('calc-display').textContent = calcExpression;
+}
+
+function calcClear() {
+    calcExpression = '0';
+    document.getElementById('calc-display').textContent = calcExpression;
+}
+
+function calcBackspace() {
+    calcExpression = calcExpression.slice(0, -1) || '0';
+    document.getElementById('calc-display').textContent = calcExpression;
+}
+
+function calcEquals() {
+    try {
+        const result = Function(`'use strict'; return (${calcExpression})`)();
+        calcExpression = Number.isFinite(result) ? String(result) : '0';
+    } catch {
+        calcExpression = 'Error';
+        setTimeout(() => { calcExpression = '0'; document.getElementById('calc-display').textContent = calcExpression; }, 700);
+    }
+    document.getElementById('calc-display').textContent = calcExpression;
+}
+
+function setPaintTool(tool) { paintState.tool = tool; }
+function setPaintColor(color) { paintState.color = color; }
+function setPaintSize(size) { paintState.size = Number(size); }
+
+function initPaint(canvas) {
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    canvas.addEventListener('mousedown', (e) => {
+        paintState.drawing = true;
+        const rect = canvas.getBoundingClientRect();
+        paintState.lastX = e.clientX - rect.left;
+        paintState.lastY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!paintState.drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        ctx.beginPath();
+        ctx.lineWidth = paintState.size;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = paintState.tool === 'eraser' ? '#ffffff' : paintState.color;
+        ctx.moveTo(paintState.lastX, paintState.lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        paintState.lastX = x;
+        paintState.lastY = y;
+    });
+
+    canvas.addEventListener('mouseup', () => { paintState.drawing = false; });
+    canvas.addEventListener('mouseleave', () => { paintState.drawing = false; });
+}
+
+function clearPaint() {
+    const canvas = document.getElementById('paint-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+document.querySelectorAll('.desktop-icon[data-app]').forEach(icon => {
+    icon.addEventListener('dblclick', () => openAppWindow(icon.dataset.app));
+});
+
+makeWindowDraggable(document.getElementById('welcome-window'));
 setInterval(updateClock, 1000);
 updateClock();
 </script>
